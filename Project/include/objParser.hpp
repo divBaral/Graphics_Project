@@ -3,8 +3,9 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <stdio.h>
 
-void objLoader(std::string filePath, std::vector<std::vector<float>> vertices, std::vector<std::vector<float>> normals, std::vector<std::vector<float>> faces)
+void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::vector<std::vector<int>> &faces)
 {
     std::ifstream file;
     file.open(filePath);
@@ -15,35 +16,34 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> vertices, s
     {
         std::string line;
         getline(file, line);
-        if (line[0] == 'v')
+        if (line.substr(0, 2) == "v ")
         {
-            std::stringstream stream(line);
+            std::istringstream s(line.substr(2));
             std::vector<float> vertex;
             float a, b, c;
-            char x;
-            stream >> x >> a >> b >> c;
+            s >> a >> b >> c;
+            // std::cout << a << ":::" << b << ":::" << c << std::endl;
             vertex.push_back(a);
             vertex.push_back(b);
             vertex.push_back(c);
             vertices.push_back(vertex);
         }
-        else if (line.substr(0, 2) == "vn")
+        else if (line.substr(0, 3) == "vn ")
         {
-            std::stringstream stream(line);
+            std::istringstream s(line.substr(2));
             std::vector<float> normal;
             float a, b, c;
-            std::string x;
-            stream >> x >> a >> b >> c;
-            normal.push_back(a);
+            s >> a >> b >> c;
             normal.push_back(b);
+            normal.push_back(a);
             normal.push_back(c);
             normals.push_back(normal);
         }
-        else if (line[0] == 'f')
+        else if (line.compare(0, 1, "f") == 0)
         {
             std::stringstream stream(line);
-            std::vector<float> face;
-            float a, b, c;
+            std::vector<int> face;
+            int a, b, c;
             std::string x;
             float ignore;
             std::string line1, line2, line3;
@@ -57,13 +57,5 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> vertices, s
             face.push_back(c);
             faces.push_back(face);
         }
-    }
-    for (std::vector<float> vertex : vertices)
-    {
-        for (float vert : vertex)
-        {
-            std::cout << vert << " ";
-        }
-        std::cout << std::endl;
     }
 }

@@ -21,42 +21,10 @@ int main()
     sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "SFML works!");
 
     window.setFramerateLimit(30);
-    std::vector<std::vector<float>> vertices;
+    std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
-    std::vector<std::vector<float>> faces;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/House.obj", vertices, normals, faces);
-    float verticesx[][3] = {
-        // front
-        {0.0f, 0.0f, 0.0f},
-        {50.0f, 50.0f, 0.0f},
-        {50.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 50.0f, 0.0f},
-        {50.0f, 50.0f, 0.0f},
-        // to clockwise faces
-        {50.0f, 0.0f, 0.0f},
-        {50.0f, 50.0f, -50.0f},
-        {50.0f, 0.0f, -50.0f},
-        {50.0f, 0.0f, 0.0f},
-        {50.0f, 50.0f, 0.0f},
-        {50.0f, 50.0f, -50.0f},
-
-        {0.0f, 0.0f, -50.0f},
-        {50.0f, 50.0f, -50.0f},
-        {50.0f, 0.0f, -50.0f},
-        {0.0f, 0.0f, -50.0f},
-        {0.0f, 50.0f, -50.0f},
-        {50.0f, 50.0f, -50.0f},
-
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 50.0f, -50.0f},
-        {0.0f, 0.0f, -50.0f},
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 50.0f, 0.0f},
-        {0.0f, 50.0f, -50.0f},
-
-    };
-    int notf = 2 * 4;
+    std::vector<std::vector<int>> faces;
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/House.obj", verticesx, normals, faces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(25, 25, -25), Vector(0, 0, 0));
@@ -130,14 +98,14 @@ int main()
 
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
 
+        // mapping points corresponding to the faces
         int i = 0;
-        for (int j = 0; j < notf; ++j)
+        for (std::vector<int> face : faces)
         {
-            Point p1 = {verticesx[i][0], verticesx[i][1], verticesx[i][2]};
-            Point p2 = {verticesx[i + 1][0], verticesx[i + 1][1], verticesx[i + 1][2]};
-            Point p3 = {verticesx[i + 2][0], verticesx[i + 2][1], verticesx[i + 2][2]};
-            i += 3;
-
+            // points p1, p2 and p3 are points of a face(triangle)
+            Point p1 = {verticesx[face[0] - 1][0], verticesx[face[0] - 1][1], verticesx[face[0] - 1][2]};
+            Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
+            Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
             p1 = viewport * Translate * p1;
             p2 = viewport * Translate * p2;
             p3 = viewport * Translate * p3;
@@ -158,8 +126,6 @@ int main()
                                   q2.x, q2.y,
                                   q3.x, q3.y);
         }
-
-        // renderer.DrawTriangle( 0.0f,0.0f, 100.f,100.f, 120.f,1.0f);
 
         window.display();
     }
