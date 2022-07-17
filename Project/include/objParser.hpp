@@ -2,15 +2,18 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <stdio.h>
 
-void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::vector<std::vector<int>> &faces)
+void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::vector<std::vector<int>> &faces, std::vector<std::string> &materials, std::map<std::string, std::vector<std::vector<int>>> &materialFaces)
 {
     std::ifstream file;
     file.open(filePath);
     if (!file.is_open())
         return;
+
+    std::vector<std::vector<int>> tempFacesForMaterial;
 
     while (file)
     {
@@ -39,6 +42,16 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
             normal.push_back(c);
             normals.push_back(normal);
         }
+        else if (line.substr(0, 7) == "usemtl ")
+        {
+            std::istringstream s(line.substr(6));
+            std::string material;
+            s >> material;
+            if (tempFacesForMaterial.size())
+                materialFaces[materials.back()] = tempFacesForMaterial;
+            tempFacesForMaterial.clear();
+            materials.push_back(material);
+        }
         else if (line.compare(0, 1, "f") == 0)
         {
             std::stringstream stream(line);
@@ -56,6 +69,8 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
             face.push_back(b);
             face.push_back(c);
             faces.push_back(face);
+            tempFacesForMaterial.push_back(face);
         }
     }
+    materialFaces[materials.back()] = tempFacesForMaterial;
 }

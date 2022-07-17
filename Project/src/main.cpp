@@ -23,8 +23,10 @@ int main()
     window.setFramerateLimit(30);
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
-    std::vector<std::vector<int>> faces;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/House.obj", verticesx, normals, faces);
+    std::vector<std::vector<int>> faces; // should we use this or not?
+    std::vector<std::string> materials;
+    std::map<std::string, std::vector<std::vector<int>>> materialFaces;
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/House.obj", verticesx, normals, faces, materials, materialFaces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(25, 25, -25), Vector(0, 0, 0));
@@ -99,32 +101,34 @@ int main()
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
 
         // mapping points corresponding to the faces
-        int i = 0;
-        for (std::vector<int> face : faces)
+        for (std::string material : materials)
         {
-            // points p1, p2 and p3 are points of a face(triangle)
-            Point p1 = {verticesx[face[0] - 1][0], verticesx[face[0] - 1][1], verticesx[face[0] - 1][2]};
-            Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
-            Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
-            p1 = viewport * Translate * p1;
-            p2 = viewport * Translate * p2;
-            p3 = viewport * Translate * p3;
+            for (std::vector<int> face : materialFaces[material])
+            {
+                // points p1, p2 and p3 are points of a face(triangle)
+                Point p1 = {verticesx[face[0] - 1][0], verticesx[face[0] - 1][1], verticesx[face[0] - 1][2]};
+                Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
+                Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
+                p1 = viewport * Translate * p1;
+                p2 = viewport * Translate * p2;
+                p3 = viewport * Translate * p3;
 
-            p1.homogenize();
-            p2.homogenize();
-            p3.homogenize();
+                p1.homogenize();
+                p2.homogenize();
+                p3.homogenize();
 
-            Point2d q1 = {p1.x, p1.y};
-            Point2d q2 = {p2.x, p2.y};
-            Point2d q3 = {p3.x, p3.y};
+                Point2d q1 = {p1.x, p1.y};
+                Point2d q2 = {p2.x, p2.y};
+                Point2d q3 = {p3.x, p3.y};
 
-            q1 = ToPixel * q1;
-            q2 = ToPixel * q2;
-            q3 = ToPixel * q3;
+                q1 = ToPixel * q1;
+                q2 = ToPixel * q2;
+                q3 = ToPixel * q3;
 
-            renderer.DrawTriangle(q1.x, q1.y,
-                                  q2.x, q2.y,
-                                  q3.x, q3.y);
+                renderer.DrawTriangle(q1.x, q1.y,
+                                      q2.x, q2.y,
+                                      q3.x, q3.y);
+            }
         }
 
         window.display();
