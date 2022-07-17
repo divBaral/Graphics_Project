@@ -10,6 +10,7 @@
 // headers
 #include "Camera.hpp"
 #include "Renderer.hpp"
+#include "Texture.hpp"
 #include "objParser.hpp"
 #include "glalib.hpp"
 
@@ -19,8 +20,8 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "SFML works!");
-
     window.setFramerateLimit(30);
+    sf::Texture texture;
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
     std::vector<std::vector<int>> faces; // should we use this or not?
@@ -36,7 +37,8 @@ int main()
     Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
 
-    Renderer renderer(&window);
+    Texture textureObject(&texture);
+    Renderer renderer(&window, &textureObject);
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -127,7 +129,7 @@ int main()
 
                 renderer.DrawTriangle(q1.x, q1.y,
                                       q2.x, q2.y,
-                                      q3.x, q3.y);
+                                      q3.x, q3.y, material);
             }
         }
 
