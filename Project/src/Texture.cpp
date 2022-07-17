@@ -7,51 +7,66 @@ Texture::Texture(sf::Texture *texture)
 
 void Texture::setTexture(std::string material)
 {
-    if (material == "Roof")
+    std::string dir = "/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/";
+    if (material == "wood_balls_brown") // roof
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/roof.jpg"))
+        if (!m_texture->loadFromFile(dir + "roof.jpg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }
     }
-    else if (material == "Walls")
+    else if (material == "metal_dark_brown") // chimneys
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/wall.jpg"))
+        if (!m_texture->loadFromFile(dir + "chimney.jpg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }
     }
-    else if (material == "Floor")
+    else if (material == "plaster_light_brown") // walls
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/floor.jpg"))
+        if (!m_texture->loadFromFile(dir + "wall.jpg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }
     }
-    else if (material == "Glass")
+    else if (material == "Wood_brown") // roof side structure
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/glass.jpg"))
+        if (!m_texture->loadFromFile(dir + "frame.jpg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }
     }
-    else if (material == "Window_Frames")
+    else if (material == "foundation_brown_brick") // foundation small wall
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/window_frame.jpg"))
+        if (!m_texture->loadFromFile(dir + "foundation.jpeg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }
     }
-    else if (material == "Doors" || material == "Sliding_Glass_Door")
+    else if (material == "metal_grey") // gutter i.e. pipes
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/door.jpg"))
+        if (!m_texture->loadFromFile(dir + "foundation.jpeg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }
     }
-    else if (material == "Door_Handles")
+    else if (material == "plaster_sand") // window cover
     {
-        if (!m_texture->loadFromFile("/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/door_handle.jpg"))
+        if (!m_texture->loadFromFile(dir + "cover_window.png"))
+        {
+            std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+        }
+    }
+    else if (material == "glass_window") // window glass
+    {
+        if (!m_texture->loadFromFile(dir + "cover_window.png"))
+        {
+            std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+        }
+    }
+    else if (material == "plate_grey") // terrace , parking area?
+    {
+        if (!m_texture->loadFromFile(dir + "foundation.jpeg"))
         {
             std::cout << "ERROR:: Loading Texture Failed" << std::endl;
         }

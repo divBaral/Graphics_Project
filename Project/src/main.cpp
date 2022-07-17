@@ -27,7 +27,7 @@ int main()
     std::vector<std::vector<int>> faces; // should we use this or not?
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/House.obj", verticesx, normals, faces, materials, materialFaces);
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materials, materialFaces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(25, 25, -25), Vector(0, 0, 0));
@@ -39,6 +39,11 @@ int main()
 
     Texture textureObject(&texture);
     Renderer renderer(&window, &textureObject);
+
+    for (std::string material : materials)
+    {
+        std::cout << material << std::endl;
+    }
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
