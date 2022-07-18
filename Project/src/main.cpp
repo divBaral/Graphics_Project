@@ -27,6 +27,7 @@ int main()
     std::vector<std::vector<int>> faces; // should we use this or not?
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
+    std::map<std::string, sf::Texture> textures;
     objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materials, materialFaces);
 
     Camera cam;
@@ -37,13 +38,8 @@ int main()
     Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
 
-    Texture textureObject(&texture);
-    Renderer renderer(&window, &textureObject);
-
-    for (std::string material : materials)
-    {
-        std::cout << material << std::endl;
-    }
+    loadTexture(materials, textures);
+    Renderer renderer(&window);
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -134,7 +130,7 @@ int main()
 
                 renderer.DrawTriangle(q1.x, q1.y,
                                       q2.x, q2.y,
-                                      q3.x, q3.y, material);
+                                      q3.x, q3.y, material, textures[material]);
             }
         }
 
