@@ -24,11 +24,12 @@ int main()
     sf::Texture texture;
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
-    std::vector<std::vector<int>> faces; // should we use this or not?
+    std::vector<std::vector<int>> faces;                                  // should we use this or not?
+    std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Texture> textures;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materials, materialFaces);
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(25, 25, -25), Vector(0, 0, 0));

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <stdio.h>
 
-void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::vector<std::vector<int>> &faces, std::vector<std::string> &materials, std::map<std::string, std::vector<std::vector<int>>> &materialFaces)
+void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::vector<std::vector<int>> &faces, std::map<std::string, std::vector<std::vector<int>>> &materialNormals, std::vector<std::string> &materials, std::map<std::string, std::vector<std::vector<int>>> &materialFaces)
 {
     std::ifstream file;
     file.open(filePath);
@@ -14,6 +14,7 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
         return;
 
     std::vector<std::vector<int>> tempFacesForMaterial;
+    std::vector<std::vector<int>> tempNormalsForMaterial;
 
     while (file)
     {
@@ -56,21 +57,28 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
         {
             std::stringstream stream(line);
             std::vector<int> face;
-            int a, b, c;
+            std::vector<int> normal;
+            int a, b, c, normal1, normal2, normal3;
             std::string x;
             float ignore;
             std::string line1, line2, line3;
+            char slash;
             stream >> x >> line1 >> line2 >> line3;
             std::stringstream stream1(line1), stream2(line2), stream3(line3);
-            stream1 >> a;
-            stream2 >> b;
-            stream3 >> c;
+            stream1 >> a >> slash >> normal1;
+            stream2 >> b >> slash >> normal2;
+            stream3 >> c >> slash >> normal3;
             face.push_back(a);
             face.push_back(b);
             face.push_back(c);
-            faces.push_back(face);
+            normal.push_back(a);
+            normal.push_back(b);
+            normal.push_back(c);
+            faces.push_back(face); // needed?
             tempFacesForMaterial.push_back(face);
+            tempNormalsForMaterial.push_back(normal);
         }
     }
     materialFaces[materials.back()] = tempFacesForMaterial;
+    materialNormals[materials.back()] = tempNormalsForMaterial;
 }
