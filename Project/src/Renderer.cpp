@@ -1,24 +1,48 @@
 #include "Renderer.hpp"
+#include "Rasterize.hpp"
+#include <iostream>
+#include <cmath>
+#include <algorithm>
 
 Renderer::Renderer(sf::RenderWindow *window)
 {
     m_window = window;
 }
-void Renderer::DrawTriangle(float x1, float y1,
-                            float x2, float y2,
-                            float x3, float y3, std::string &material, sf::Texture &texture)
+
+void Renderer::DrawTriangle(std::pair<float,float> p0, std::pair<float,float> p1, std::pair<float,float> p2)
 {
-    sf::ConvexShape convex;
+    //lambda function captures this vertices
+    std::vector<sf::Vertex> vertices;
 
-    // resize it to 3 points
-    convex.setPointCount(3);
+    using SlopeData = std::pair<float,float>;
+    RasterizeTriangle(
+        p0,p1,p2,
+        [&](const auto& p){ return p;},
+        [&](const auto& p0, const auto& p1, float step)
+        {
+            int begin = p0.first;
+            int end = p1.first;
 
-    // define the points
-    convex.setPoint(0, sf::Vector2f(x1, y1));
-    convex.setPoint(1, sf::Vector2f(x2, y2));
-    convex.setPoint(2, sf::Vector2f(x3, y3));
-    convex.setFillColor(sf::Color::White);
-    convex.setTexture(&texture);
+            return SlopeData(begin, (end-begin)/step);
+        },
+        [&](int y, SlopeData& left, SlopeData& right, auto&& Plot)
+        {
+            int x = left.first;
+            int endx = right.first;
 
-    m_window->draw(convex);
+            for( ; x<endx; ++x )
+            {
+                Plot(x,y);
+            }
+            left.first += left.second;
+            right.first += right.second;
+        },
+        [&](int x, int y)
+        {
+            sf::Vertex v(sf::Vector2f(x,y));
+            vertices.push_back(v);
+        }
+    );
+
+    m_window->draw( &vertices[0], vertices.size(), sf::Points);
 }

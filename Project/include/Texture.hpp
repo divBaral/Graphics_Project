@@ -5,7 +5,7 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::T
     for (std::string material : materials)
     {
         sf::Texture texture;
-        std::string dir = "/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/";
+        std::string dir = "D:/Graphics_Project/Graphics_Project/Project/res/textures/";
         if (material == "wood_balls_brown") // roof
         {
             if (!texture.loadFromFile(dir + "roof.jpg"))

@@ -28,7 +28,7 @@ int main()
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Texture> textures;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materials, materialFaces);
+    objLoader("D:/Graphics_Project/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materials, materialFaces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(25, 25, -25), Vector(0, 0, 0));
@@ -48,7 +48,7 @@ int main()
     {
         sf::Event event;
 
-        static float f = 0;
+        static float f = 0; 
 
         while (window.pollEvent(event))
         {
@@ -128,9 +128,7 @@ int main()
                 q2 = ToPixel * q2;
                 q3 = ToPixel * q3;
 
-                renderer.DrawTriangle(q1.x, q1.y,
-                                      q2.x, q2.y,
-                                      q3.x, q3.y, material, textures[material]);
+                renderer.DrawTriangle({q1.x,q1.y},{q2.x,q2.y},{q3.x,q3.y});
             }
         }
 
