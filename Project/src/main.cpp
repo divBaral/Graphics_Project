@@ -42,7 +42,7 @@ int main()
 
     loadTexture(materials, textures);
     Renderer renderer(&window);
-    Zbuffer zb(window.getSize().x, window.getSize().y);
+    //Zbuffer zb(window.getSize().x, window.getSize().y);
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -109,7 +109,7 @@ int main()
 
         // frame begins
 
-        zb.Clear();  //set all the pixels/elements in zBuffer to infinity
+        //zb.Clear();  //set all the pixels/elements in zBuffer to infinity
 
         // mapping points corresponding to the faces
         for (std::string material : materials)

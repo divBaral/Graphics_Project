@@ -12,9 +12,9 @@ void Renderer::DrawTriangle(float x1, float y1,
 
     // z-operation while rasterizing
     /*
-     if(zb.TestAndSet(x, y, z))
+     if(zb.testAndSet(x, y, z))
      {
-         we do the rasterizing things bla bla
+        we do the rasterizing things bla bla
      }
 
     */
@@ -34,7 +34,7 @@ void Renderer::DrawTriangle(float x1, float y1,
     /*
         sf::Image image = texture.copyToImage();
         size = image.getSize();
-        color  = image.getPixelsPtr();
+        sf::color  = image.getPixelsPtr();
 
     */
 

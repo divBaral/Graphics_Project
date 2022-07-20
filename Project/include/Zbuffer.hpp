@@ -9,17 +9,13 @@ class Zbuffer
 public:
     Zbuffer(int width, int height);
 
-    ~Zbuffer()
-    {
-        delete[] bufferArray;
-        bufferArray = nullptr;
-    }
+    ~Zbuffer();
 
     void Clear();
 
     float &At(int x, int y);
 
-    bool TestAndSet(int x, int y, float depth);
+    bool testAndSet(int x, int y, float depth);
 
 private:
     int width;

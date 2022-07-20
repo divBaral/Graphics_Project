@@ -32,7 +32,7 @@ float &Zbuffer::At(int x, int y)
     // search for the pixel depth
 }
 
-bool Zbuffer::TestAndSet(int x, int y, float depth)
+bool Zbuffer::testAndSet(int x, int y, float depth)
 {
     float &depthInBuffer = At(x, y);
     if (depth < depthInBuffer) // we just take care of the element with lowest
