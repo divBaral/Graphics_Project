@@ -13,6 +13,7 @@
 #include "Texture.hpp"
 #include "objParser.hpp"
 #include "glalib.hpp"
+#include "Zbuffer.hpp"
 
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
@@ -41,6 +42,7 @@ int main()
 
     loadTexture(materials, textures);
     Renderer renderer(&window);
+    Zbuffer zb(window.getSize().x, window.getSize().y);
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -55,6 +57,7 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
             if (event.type == sf::Event::KeyPressed)
             {
 
@@ -103,6 +106,10 @@ int main()
         window.clear();
 
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
+
+        // frame begins
+
+        zb.Clear();  //set all the pixels/elements in zBuffer to infinity
 
         // mapping points corresponding to the faces
         for (std::string material : materials)
