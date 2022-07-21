@@ -29,24 +29,28 @@ int main()
     std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
-    std::map<std::string, sf::Texture> textures;
+    std::map<std::string, sf::Image> images;
     objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
 
     Camera cam;
-    Matrix4f Translate = af::Translate(Vector(25, 25, -25), Vector(0, 0, 0));
+    Matrix4f Translate = af::Translate(Vector(0, 0, 0), Vector(0, 0, 0));
 
     Matrix4f viewport = cam.update({0.0f, 0, 100.f}, {0.0f, 0.0f, 0.0f});
 
     Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
 
-    loadTexture(materials, textures);
+    loadTexture(materials, images);
     Renderer renderer(&window);
-    //Zbuffer zb(window.getSize().x, window.getSize().y);
+    // Zbuffer zb(window.getSize().x, window.getSize().y);
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
 
+    for (std::string material : materials)
+    {
+        std::cout << material << std::endl;
+    }
     while (window.isOpen())
     {
         sf::Event event;
@@ -109,7 +113,7 @@ int main()
 
         // frame begins
 
-        //zb.Clear();  //set all the pixels/elements in zBuffer to infinity
+        // zb.Clear();  //set all the pixels/elements in zBuffer to infinity
 
         // mapping points corresponding to the faces
         for (std::string material : materials)
@@ -136,9 +140,7 @@ int main()
                 q2 = ToPixel * q2;
                 q3 = ToPixel * q3;
 
-                renderer.DrawTriangle(q1.x, q1.y,
-                                      q2.x, q2.y,
-                                      q3.x, q3.y, material, textures[material]);
+                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, images[material]);
             }
         }
 
