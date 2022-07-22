@@ -2,6 +2,7 @@
 #include <tuple>
 #include <vector>
 #include <algorithm>
+#include "glalib.hpp"
 
 
 //rasterize triangle
@@ -37,6 +38,12 @@ void RasterizeTriangle( T& p0, T& p1, T& p2, auto&& GetXY, auto&& Makeslope, aut
     //If triangle has no area, return 
     if( y0==y2 ) return;
 
+    //calculating the direction ratios of the surface of the trianble p0,p1,p2
+    // Vector dc1(p2.x-p1.x, p2.y-p1.y, p2.z-p1.z);
+    // Vector dc2(p1.x-p0.x, p1.y-p0.y, p1.z-p0.z);
+    // //cross product
+    // Vector normal = dc1*dc2;
+
     bool shortSide = (y1-y0)*(x2-x0) < (x1-x0)*(y2-y0);
     //false: short side is in left side
     //true: short side is in right side
@@ -62,6 +69,6 @@ void RasterizeTriangle( T& p0, T& p1, T& p2, auto&& GetXY, auto&& Makeslope, aut
             }
             slopes[shortSide]=arg;
         }
-        DrawScanLine( y, slopes[0], slopes[1] , Plot );
+        DrawScanLine( y, slopes[0], slopes[1] , Plot);
     }
 }

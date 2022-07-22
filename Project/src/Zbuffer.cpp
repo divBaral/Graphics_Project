@@ -17,7 +17,7 @@ void Zbuffer::Clear()
     const int allDepths = width * height;
     for (int i = 0; i < allDepths; i++)
     {
-        bufferArray[i] = std::numeric_limits<float>::infinity();
+        bufferArray[i] = -1 * std::numeric_limits<float>::infinity();
         // At first every pixel has infinite depth i.e. the first pixel drawn is always at front
     }
 }
@@ -35,7 +35,7 @@ float &Zbuffer::At(int x, int y)
 bool Zbuffer::testAndSet(int x, int y, float depth)
 {
     float &depthInBuffer = At(x, y);
-    if (depth < depthInBuffer) // we just take care of the element with lowest
+    if (depth > depthInBuffer) // we just take care of the element with lowest
     {                          // depth we dont care about other elements in that
         depthInBuffer = depth; // pixel, we get lowest depth and we rasterize it, that's all
         return true;

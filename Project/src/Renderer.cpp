@@ -5,17 +5,37 @@
 #include <cmath>
 #include <algorithm>
 
-Renderer::Renderer(sf::RenderWindow *window)
+Renderer::Renderer(sf::RenderWindow *window, Zbuffer *zbuffer)
 {
     m_window = window;
+    m_zBuffer = zbuffer;
+
+    m_pixels = new sf::Vertex[800*600];
+    clear();
+
 }
 
-void Renderer::DrawTriangle(std::pair<float, float> p0, std::pair<float, float> p1, std::pair<float, float> p2, sf::Image &image)
+void Renderer::clear()
 {
-    sf::ConvexShape convex;
-    // lambda function captures this vertices
-    std::vector<sf::Vertex> vertices;
+    int X = m_window->getSize().x;
+    int Y = m_window->getSize().y;
 
+    for( auto i=0; i<X*Y; ++i )
+    {
+        int x = i%X;
+        int y = i/X;
+        sf::Vertex v;
+        v.color = sf::Color(0,0,0); //default color
+        v.position = sf::Vector2f(x,y);
+        m_pixels[i] = v;
+    }
+}
+
+void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p1, std::pair<float,float> p2, float depth, sf::Image &image)
+{
+    // lambda function captures this variable
+    // m_vertices.clear();
+    // std::vector<sf::Vertex> m_vertices;
     using SlopeData = std::pair<float, float>;
     RasterizeTriangle(
         p0, p1, p2,
@@ -28,11 +48,12 @@ void Renderer::DrawTriangle(std::pair<float, float> p0, std::pair<float, float> 
 
             return SlopeData(begin, (end - begin) / step);
         },
-        [&](int y, SlopeData &left, SlopeData &right, auto &&Plot)
+        [&](int y, SlopeData &left, SlopeData &right, auto &&Plot )
         {
             int x = left.first;
             int endx = right.first;
 
+            
             for (; x < endx; ++x)
             {
                 Plot(x, y);
@@ -40,14 +61,21 @@ void Renderer::DrawTriangle(std::pair<float, float> p0, std::pair<float, float> 
             left.first += left.second;
             right.first += right.second;
         },
-        [&](int x, int y)
-        {
-            sf::Color color = sf::Color(0, 255, 0);
-            if (image.getSize().x != 0 || image.getSize().y != 0)
-                color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
-            sf::Vertex v(sf::Vector2f(x, y), color);
-            vertices.push_back(v);
-        });
+        [&](int x, int y )
+        {   
+            if( m_zBuffer->testAndSet( x, y, depth) )
+            {
+                sf::Color color = sf::Color(0, 255, 0);
+                if (image.getSize().x != 0 || image.getSize().y != 0)
+                    color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
+                sf::Vertex v(sf::Vector2f(x, y), color);
+                // m_window->draw(&v, 1, sf::Points);
+                // m_vertices.push_back(v);
+                m_pixels[(y*m_window->getSize().x)+x]= v;
+            }
+            
 
-    m_window->draw(&vertices[0], vertices.size(), sf::Points);
+        });
+    // m_window->draw(&m_vertices[0], m_vertices.size(), sf::Points);
+    // m_window->draw(m_pixels, 800 ,sf::Points);
 }

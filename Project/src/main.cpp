@@ -30,19 +30,20 @@ int main()
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Image> images;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
+    objLoader("D:/Graphics_Project/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(0, 0, 0), Vector(0, 0, 0));
 
-    Matrix4f viewport = cam.update({0.0f, 0, 100.f}, {0.0f, 0.0f, 0.0f});
+    Matrix4f viewport = cam.update({0.0f, 0, 40.f}, {0.0f, 0.0f, 0.0f});
 
     Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
 
     loadTexture(materials, images);
-    Renderer renderer(&window);
-    // Zbuffer zb(window.getSize().x, window.getSize().y);
+    Zbuffer zb(SCRWIDTH, SCRHEIGHT);
+    zb.Clear();
+    Renderer renderer(&window, &zb) ;
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -66,8 +67,8 @@ int main()
             {
 
                 static float tt = 0.0f;
-                float xx = (tt + 100) * sin(f);
-                float zz = (tt + 100) * cos(f);
+                float xx = (tt + 40) * sin(f);
+                float zz = (tt + 40) * cos(f);
                 static float yy = 0.f;
 
                 if (event.key.code == sf::Keyboard::Left)
@@ -104,6 +105,9 @@ int main()
                     tt += 1.f;
                     viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
+
+                zb.Clear();
+                renderer.clear();
             }
         }
 
@@ -112,9 +116,7 @@ int main()
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
 
         // frame begins
-
-        // zb.Clear();  //set all the pixels/elements in zBuffer to infinity
-
+        // zb.Clear();
         // mapping points corresponding to the faces
         for (std::string material : materials)
         {
@@ -132,6 +134,8 @@ int main()
                 p2.homogenize();
                 p3.homogenize();
 
+                float depth = p1.z;
+
                 Point2d q1 = {p1.x, p1.y};
                 Point2d q2 = {p2.x, p2.y};
                 Point2d q3 = {p3.x, p3.y};
@@ -140,10 +144,11 @@ int main()
                 q2 = ToPixel * q2;
                 q3 = ToPixel * q3;
 
-                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, images[material]);
+                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, depth , images[material]);
+                // renderer.DrawTriangle(q1,q2,q3, images[material]);
             }
         }
-
+        window.draw(renderer.m_pixels, SCRHEIGHT*SCRWIDTH, sf::Points);
         window.display();
     }
 
