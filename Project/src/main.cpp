@@ -126,12 +126,12 @@ int main()
                 p2 = viewport * Translate * p2;
                 p3 = viewport * Translate * p3;
 
-                // p1.homogenize();
-                // p2.homogenize();
-                // p3.homogenize();
+                p1.homogenize();
+                p2.homogenize();
+                p3.homogenize();
 
                 float depth = p1.z;
-                // std::cout << p1.z << '\n';
+                std::cout << p1.z << ' ' << p2.z << ' ' << p3.z << '\n';
 
                 Point2d q1 = {p1.x, p1.y};
                 Point2d q2 = {p2.x, p2.y};
