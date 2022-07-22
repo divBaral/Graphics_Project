@@ -50,7 +50,7 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
         }
         else if (material == "plaster_sand") // window cover
         {
-            if (!image.loadFromFile(dir + "cover_window.jpeg"))
+            if (!image.loadFromFile(dir + "cover_window.png"))
             {
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }

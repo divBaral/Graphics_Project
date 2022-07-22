@@ -10,11 +10,11 @@ Renderer::Renderer(sf::RenderWindow *window)
     m_window = window;
 }
 
-void Renderer::DrawTriangle(std::pair<float, float> p0, std::pair<float, float> p1, std::pair<float, float> p2, sf::Image &image)
+void Renderer::DrawTriangle(std::pair<float, float> p0, std::pair<float, float> p1, std::pair<float, float> p2, sf::Image &image, std::string material)
 {
-    sf::ConvexShape convex;
     // lambda function captures this vertices
     std::vector<sf::Vertex> vertices;
+    int a = 0, b = 0;
 
     using SlopeData = std::pair<float, float>;
     RasterizeTriangle(
@@ -42,9 +42,15 @@ void Renderer::DrawTriangle(std::pair<float, float> p0, std::pair<float, float> 
         },
         [&](int x, int y)
         {
-            sf::Color color = sf::Color(0, 255, 0);
-            if (image.getSize().x != 0 || image.getSize().y != 0)
+            sf::Color color = sf::Color(0,255,0);
+            if (material == "glass_window")
+                color = sf::Color(21, 76, 121, 60);
+            else if (material == "text")
+                color = sf::Color(255, 255, 255);
+            else if (image.getSize().x != 0 && image.getSize().y != 0)
+            {
                 color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
+            }
             sf::Vertex v(sf::Vector2f(x, y), color);
             vertices.push_back(v);
         });
