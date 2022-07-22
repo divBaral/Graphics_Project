@@ -5,12 +5,11 @@
 #include <cmath>
 #include <algorithm>
 
-Renderer::Renderer(sf::RenderWindow *window, Zbuffer *zbuffer)
+Renderer::Renderer(sf::RenderWindow *window)
 {
     m_window = window;
-    m_zBuffer = zbuffer;
-
-    m_pixels = new sf::Vertex[800*600];
+    m_zBuffer = new Zbuffer( m_window->getSize().x, m_window->getSize().y);
+    m_pixels = new sf::Vertex[m_window->getSize().x * m_window->getSize().y];
     clear();
 
 }
@@ -29,6 +28,9 @@ void Renderer::clear()
         v.position = sf::Vector2f(x,y);
         m_pixels[i] = v;
     }
+
+    //also clearing z_buffer
+    m_zBuffer->Clear();
 }
 
 void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p1, std::pair<float,float> p2, float depth, sf::Image &image)
@@ -52,9 +54,8 @@ void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p
         {
             int x = left.first;
             int endx = right.first;
-
             
-            for (; x < endx; ++x)
+            for (; x<endx; ++x)
             {
                 Plot(x, y);
             }

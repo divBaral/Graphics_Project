@@ -9,7 +9,7 @@
 class Renderer
 {
 public:
-    Renderer(sf::RenderWindow *window, Zbuffer *zbuffer);
+    Renderer(sf::RenderWindow *window);
     void DrawTriangle(std::pair<float,float>, std::pair<float,float>, std::pair<float,float>, float ,sf::Image &);
     void clear();
 

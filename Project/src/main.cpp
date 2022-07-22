@@ -41,9 +41,7 @@ int main()
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
 
     loadTexture(materials, images);
-    Zbuffer zb(SCRWIDTH, SCRHEIGHT);
-    zb.Clear();
-    Renderer renderer(&window, &zb) ;
+    Renderer renderer(&window) ;
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -105,8 +103,7 @@ int main()
                     tt += 1.f;
                     viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
-
-                zb.Clear();
+                //clearing pixel information and z-buffer
                 renderer.clear();
             }
         }
@@ -116,7 +113,6 @@ int main()
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
 
         // frame begins
-        // zb.Clear();
         // mapping points corresponding to the faces
         for (std::string material : materials)
         {
@@ -130,11 +126,12 @@ int main()
                 p2 = viewport * Translate * p2;
                 p3 = viewport * Translate * p3;
 
-                p1.homogenize();
-                p2.homogenize();
-                p3.homogenize();
+                // p1.homogenize();
+                // p2.homogenize();
+                // p3.homogenize();
 
                 float depth = p1.z;
+                // std::cout << p1.z << '\n';
 
                 Point2d q1 = {p1.x, p1.y};
                 Point2d q2 = {p2.x, p2.y};
