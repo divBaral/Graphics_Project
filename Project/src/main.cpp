@@ -41,14 +41,13 @@ int main()
 
     loadTexture(materials, images);
     Renderer renderer(&window);
-
-    // viewport = cam.update( {50,0,50}, {50,50,0} );
-    sf::Clock clock;
-
     for (std::string material : materials)
     {
         std::cout << material << std::endl;
     }
+
+    // viewport = cam.update( {50,0,50}, {50,50,0} );
+    sf::Clock clock;
     while (window.isOpen())
     {
         sf::Event event;

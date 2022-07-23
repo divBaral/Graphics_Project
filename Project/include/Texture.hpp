@@ -64,7 +64,7 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
         }
         else if (material == "plate_grey") // terrace , parking area?
         {
-            if (!image.loadFromFile(dir + "foundation.jpg"))
+            if (!image.loadFromFile(dir + "stone.jpg"))
             {
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
