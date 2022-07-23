@@ -7,15 +7,15 @@
 class Zbuffer
 {
 public:
-    Zbuffer(int width, int height);
+    Zbuffer(int, int);
 
     ~Zbuffer();
 
     void Clear();
 
-    float &At(int x, int y);
+    float &At(int, int);
 
-    bool testAndSet(int x, int y, float depth);
+    bool testAndSet(int, int, float);
 
 private:
     int width;

@@ -25,24 +25,22 @@ int main()
     sf::Texture texture;
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
-    std::vector<std::vector<int>> faces;                                  // should we use this or not?
     std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Image> images;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, materialNormals, materials, materialFaces);
 
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(0, 0, 0), Vector(0, 0, 0));
 
-    Matrix4f viewport = cam.update({0.0f, 0, 100.f}, {0.0f, 0.0f, 0.0f});
+    Matrix4f viewport = cam.update({0.0f, 0, 40.f}, {0.0f, 0.0f, 0.0f});
 
     Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
 
     loadTexture(materials, images);
     Renderer renderer(&window);
-    // Zbuffer zb(window.getSize().x, window.getSize().y);
 
     // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
@@ -66,8 +64,8 @@ int main()
             {
 
                 static float tt = 0.0f;
-                float xx = (tt + 100) * sin(f);
-                float zz = (tt + 100) * cos(f);
+                float xx = (tt + 40) * sin(f);
+                float zz = (tt + 40) * cos(f);
                 static float yy = 0.f;
 
                 if (event.key.code == sf::Keyboard::Left)
@@ -104,6 +102,8 @@ int main()
                     tt += 1.f;
                     viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
+                // clearing pixel information and z-buffer
+                renderer.clear();
             }
         }
 
@@ -112,9 +112,6 @@ int main()
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
 
         // frame begins
-
-        // zb.Clear();  //set all the pixels/elements in zBuffer to infinity
-
         // mapping points corresponding to the faces
         for (std::string material : materials)
         {
@@ -128,9 +125,11 @@ int main()
                 p2 = viewport * Translate * p2;
                 p3 = viewport * Translate * p3;
 
-                p1.homogenize();
-                p2.homogenize();
-                p3.homogenize();
+                // p1.homogenize();
+                // p2.homogenize();
+                // p3.homogenize();
+
+                float depth = p1.z;
 
                 Point2d q1 = {p1.x, p1.y};
                 Point2d q2 = {p2.x, p2.y};
@@ -140,10 +139,11 @@ int main()
                 q2 = ToPixel * q2;
                 q3 = ToPixel * q3;
 
-                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, images[material], material);
+                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, depth, images[material]);
+                // renderer.DrawTriangle(q1,q2,q3, images[material]);
             }
         }
-
+        window.draw(renderer.m_pixels, SCRHEIGHT * SCRWIDTH, sf::Points);
         window.display();
     }
 

@@ -10,16 +10,12 @@ Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
     fv = 120;        // field of view
     vup = {0, 1, 0}; // vector up assume
     f = 100.f;       // far plane
-    n = 10.f;        // near plane
+    n = 20.f;        // near plane
     look = (TargetPosition - CameraPosition).normalize();
     auto w = look.scale(-1.0f);
     auto v = vup - w * (vup.dot(w));
     v = v.normalize();
     Vector u = (v.cross(w)).normalize();
-
-    // std::cerr<<"U: "<<u.x<<" "<<u.y<<" "<<u.z<<std::endl;
-    // std::cerr<<"U: "<<v.x<<" "<<v.y<<" "<<v.z<<std::endl;
-    // std::cerr<<"U: "<<w.x<<" "<<w.y<<" "<<w.z<<std::endl;
 
     // calcuate field of view in radian
     fv = fv * PI / 180;
