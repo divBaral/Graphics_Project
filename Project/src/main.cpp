@@ -6,6 +6,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
 #include <cmath>
+#include <tuple>
 #include <math.h>
 // headers
 #include "Camera.hpp"
@@ -124,11 +125,13 @@ int main()
                 p2 = viewport * Translate * p2;
                 p3 = viewport * Translate * p3;
 
-                // p1.homogenize();
-                // p2.homogenize();
-                // p3.homogenize();
+                p1.homogenize();
+                p2.homogenize();
+                p3.homogenize();
 
-                float depth = p1.z;
+                float depth = p1.z*1000;
+                // std::cerr << p1.z << ' ' << p2.z << ' ' << p3.z << '\n';
+                if( p1.z<-1 || p2.z<-1 || p3.z<-1 ) continue;
 
                 Point2d q1 = {p1.x, p1.y};
                 Point2d q2 = {p2.x, p2.y};
@@ -138,7 +141,7 @@ int main()
                 q2 = ToPixel * q2;
                 q3 = ToPixel * q3;
 
-                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, depth, images[material]);
+                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, p1, p2, p3, depth, images[material]);
                 // renderer.DrawTriangle(q1,q2,q3, images[material]);
             }
         }
