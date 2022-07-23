@@ -33,7 +33,7 @@ void Renderer::clear()
     m_zBuffer->Clear();
 }
 
-void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p1, std::pair<float,float> p2, float depth, sf::Image &image)
+void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p1, std::pair<float,float> p2, Point &point0, Point &point1, Point &point2, float zdepth, sf::Image &image)
 {
     // lambda function captures this variable
     // m_vertices.clear();
@@ -47,6 +47,7 @@ void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p
         using SlopeData = std::pair<float, float>;
         RasterizeTriangle(
             p0, p1, p2,
+            point0, point1, point2,
             [&](const auto &p)
             { return p; },
             [&](const auto &p0, const auto &p1, float step)
@@ -56,19 +57,25 @@ void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p
 
                 return SlopeData(begin, (end - begin) / step);
             },
-            [&](int y, SlopeData &left, SlopeData &right, auto &&Plot )
+            [&](int y, float depth, const auto& normal, SlopeData &left, SlopeData &right, auto &&Plot)
             {
                 int x = left.first;
                 int endx = right.first;
-                
+
+                //direction ratios
+                float a = normal.x;
+                float c = normal.z;
+
                 for (; x<endx; ++x)
                 {
-                    Plot(x, y);
+                    Plot(x, y, depth);
+                    depth -= (a/c);
                 }
+
                 left.first += left.second;
                 right.first += right.second;
             },
-            [&](int x, int y )
+            [&](int x, int y , float depth)
             {  
 
                 if( x<m_window->getSize().x && y<m_window->getSize().y && x>0 && y>0 && m_zBuffer->testAndSet( x, y, depth) )

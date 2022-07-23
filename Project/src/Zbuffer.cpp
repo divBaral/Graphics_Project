@@ -38,10 +38,9 @@ float &Zbuffer::At(int x, int y)
 
 bool Zbuffer::testAndSet(int x, int y, float depth)
 {
-    float &depthInBuffer = At(x, y);
-    if (depth > depthInBuffer) // we just take care of the element with lowest
+    if (depth > bufferArray[ y*width + x]) // we just take care of the element with lowest
     {                          // depth we dont care about other elements in that
-        depthInBuffer = depth; // pixel, we get lowest depth and we rasterize it, that's all
+        bufferArray[y * width + x] = depth; // pixel, we get lowest depth and we rasterize it, that's all
         return true;
     }
     return false;

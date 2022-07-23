@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Zbuffer.hpp"
+#include "glalib.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -10,7 +11,7 @@ class Renderer
 {
 public:
     Renderer(sf::RenderWindow *window);
-    void DrawTriangle(std::pair<float,float>, std::pair<float,float>, std::pair<float,float>, float ,sf::Image &);
+    void DrawTriangle(std::pair<float,float>, std::pair<float,float>, std::pair<float,float>, Point&, Point&, Point&, float ,sf::Image &);
     void clear();
 
     std::vector<sf::Vertex> m_vertices;
