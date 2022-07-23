@@ -57,19 +57,21 @@ void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p
 
                 return SlopeData(begin, (end - begin) / step);
             },
-            [&](int y, float depth, const auto& normal, SlopeData &left, SlopeData &right, auto &&Plot)
+            [&](int y, float d, const auto& normal, SlopeData &left, SlopeData &right, auto &&Plot)
             {
                 int x = left.first;
                 int endx = right.first;
 
                 //direction ratios
                 float a = normal.x;
+                float b = normal.y;
                 float c = normal.z;
 
                 for (; x<endx; ++x)
                 {
+                    float depth = (-a*x-b*y-d)/c;
                     Plot(x, y, depth);
-                    depth -= (a/c);
+                    // depth -= (a/c);
                 }
 
                 left.first += left.second;

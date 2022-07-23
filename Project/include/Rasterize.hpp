@@ -55,6 +55,8 @@ void RasterizeTriangle( T& p0, T& p1, T& p2, Point& point0, Point& point1, Point
 
     float depth = point0.z;
 
+    float d_const = -1 * (a*point0.x + b*point0.y + c*point0.z);
+
     bool shortSide = (y1-y0)*(x2-x0) < (x1-x0)*(y2-y0);
     //false: short side is in left side
     //true: short side is in right side
@@ -65,7 +67,7 @@ void RasterizeTriangle( T& p0, T& p1, T& p2, Point& point0, Point& point1, Point
     for ( auto y=y0, endy=y0; ; ++y)
     {
 
-        if (y>endy) depth = depth - ((a/c)*(y-endy)*slopes[0].second) - (b/c);
+        // if (y>endy) depth = depth - ((a/c)*(y-endy)*slopes[0].second) - (b/c);
         if( y>=endy )
         {
             if( y>=y2 ) break;
@@ -82,6 +84,6 @@ void RasterizeTriangle( T& p0, T& p1, T& p2, Point& point0, Point& point1, Point
             }
             slopes[shortSide]=arg;
         }
-        DrawScanLine( y, depth, normal, slopes[0], slopes[1] , Plot);
+        DrawScanLine( y, d_const, normal, slopes[0], slopes[1] , Plot);
     }
 }
