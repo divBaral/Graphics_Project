@@ -36,7 +36,7 @@ int main()
     Camera cam;
     Matrix4f Translate = af::Translate(Vector(0, 0, 0), Vector(0, 0, 0));
 
-    Matrix4f viewport = cam.update({0.0f, 0, 40.f}, {0.0f, 0.0f, 0.0f});
+    Matrix4f viewport = cam.update({0.0f, 40.f, 10.f}, {0.0f, 0.0f, 0.0f});
 
     Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
                                            {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
@@ -68,6 +68,7 @@ int main()
                 static float tt = 0.0f;
                 float xx = (tt + 40) * sin(f);
                 float zz = (tt + 40) * cos(f);
+                if( zz==0 ){ zz=-4.f; }
                 static float yy = 0.f;
 
                 if (event.key.code == sf::Keyboard::Left)
@@ -105,11 +106,12 @@ int main()
                     viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
                 //clearing pixel information and z-buffer
-                renderer.clear();
+                // renderer.clear();
             }
         }
 
         window.clear();
+        renderer.m_zBuffer->Clear();
 
         // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
 
@@ -123,9 +125,25 @@ int main()
                 Point p1 = {verticesx[face[0] - 1][0], verticesx[face[0] - 1][1], verticesx[face[0] - 1][2]};
                 Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
                 Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
-                p1 = viewport * Translate * p1;
-                p2 = viewport * Translate * p2;
-                p3 = viewport * Translate * p3;
+
+                p1 = viewport * p1;
+                p2 = viewport * p2;
+                p3 = viewport * p3;
+
+                Point p11=p1;
+                Point p12=p2;
+                Point p13=p3;
+
+                float n=10.f, f=100.f;
+
+                Matrix4f Z(f - n, 0, 0, 0,
+                        0, f - n, 0, 0,
+                        0, 0, f, n,
+                        0, 0, n - f, 0); // implement if you care near view
+
+                p1 = Z*p1;
+                p2 = Z*p2;
+                p3 = Z*p3;
 
                 p1.homogenize();
                 p2.homogenize();
@@ -133,7 +151,7 @@ int main()
 
                 float depth = p1.z*1000;
                 // std::cerr << p1.z << ' ' << p2.z << ' ' << p3.z << '\n';
-                if( p1.z<-1 || p2.z<-1 || p3.z<-1 ) continue;
+                // if( p1.z<-1 || p2.z<-1 || p3.z<-1 ) continue;
 
                 Point2d q1 = {p1.x, p1.y};
                 Point2d q2 = {p2.x, p2.y};

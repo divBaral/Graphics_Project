@@ -9,8 +9,8 @@ Renderer::Renderer(sf::RenderWindow *window)
 {
     m_window = window;
     m_zBuffer = new Zbuffer( m_window->getSize().x, m_window->getSize().y);
-    m_pixels = new sf::Vertex[m_window->getSize().x * m_window->getSize().y];
-    clear();
+    // m_pixels = new sf::Vertex[m_window->getSize().x * m_window->getSize().y];
+    // clear();
 
 }
 
@@ -30,7 +30,7 @@ void Renderer::clear()
     }
 
     //also clearing z_buffer
-    m_zBuffer->Clear();
+    // m_zBuffer->Clear();
 }
 
 void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p1, std::pair<float,float> p2, Point &point0, Point &point1, Point &point2, float zdepth, sf::Image &image)
@@ -70,6 +70,7 @@ void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p
                 for (; x<endx; ++x)
                 {
                     float depth = (-a*x-b*y-d)/c;
+                    depth *= 1000.f;
                     Plot(x, y, depth);
                     // depth -= (a/c);
                 }
@@ -80,16 +81,17 @@ void Renderer::DrawTriangle( std::pair<float,float> p0, std::pair<float,float> p
             [&](int x, int y , float depth)
             {  
 
-                if( x<m_window->getSize().x && y<m_window->getSize().y && x>0 && y>0 && m_zBuffer->testAndSet( x, y, depth) )
-                {
+                // if( x<m_window->getSize().x && y<m_window->getSize().y && x>=0 && y>=0 && m_zBuffer->testAndSet( x, y, depth) )
+                // {
                     sf::Color color = sf::Color(0, 255, 0);
                     if (image.getSize().x != 0 || image.getSize().y != 0)
                         color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
                     sf::Vertex v(sf::Vector2f(x, y), color);
                     // m_window->draw(&v, 1, sf::Points);
                     // m_vertices.push_back(v);
-                    m_pixels[(y*m_window->getSize().x)+x]= v;
-                }
+                    // m_pixels[(y*m_window->getSize().x)+x]= v;
+                    m_window->draw(&v, 1, sf::Points);
+                // }
             });
     }
 

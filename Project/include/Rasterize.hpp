@@ -41,25 +41,26 @@ void RasterizeTriangle( T& p0, T& p1, T& p2, Point& point0, Point& point1, Point
     //If triangle has no area, return 
     if( y0==y2 ) return;
 
-    //calculating the direction ratios of the surface of the trianble p0,p1,p2
+    //calculating the direction ratios of normal to the surface of the trianble p0,p1,p2
     Vector dc1(point2.x-point1.x, point2.y-point1.y, point2.z-point1.z);
     Vector dc2(point0.x-point1.x, point0.y-point1.y, point0.z-point1.z);
     // //cross product
-    Vector normal = dc1*dc2;
-    // normal = normal.normalize();
+    Vector normal = dc1.cross(dc2);
+
+    bool shortSide = (y1-y0)*(x2-x0) < (x1-x0)*(y2-y0);
+    if( shortSide ) normal = normal * (-1);
+    normal = normal.normalize();
+    //false: short side is in left side
+    //true: short side is in right side
 
     //calculating direction ratios
     float a = normal.x;
     float b = normal.y;
     float c = normal.z;
 
-    float depth = point0.z;
+    // float depth = point0.z;
 
     float d_const = -1 * (a*point0.x + b*point0.y + c*point0.z);
-
-    bool shortSide = (y1-y0)*(x2-x0) < (x1-x0)*(y2-y0);
-    //false: short side is in left side
-    //true: short side is in right side
 
     std::pair<float,float> slopes[2];
     //slope of longest side

@@ -34,10 +34,10 @@ Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
         Point(P), Point(A), Point(B), Point(C),
         Point(0, 0, 0), Point(0, 0, -1), Point(1, 0, -1), Point(0, 1, -1));
 
-    Matrix4f Z(f - n, 0, 0, 0,
-               0, f - n, 0, 0,
-               0, 0, f, n,
-               0, 0, n - f, 0); // implement if you care near view
+    // Matrix4f Z(f - n, 0, 0, 0,
+    //            0, f - n, 0, 0,
+    //            0, 0, f, n,
+    //            0, 0, n - f, 0); // implement if you care near view
 
-    return Z * Tper;
+    return Tper;
 }

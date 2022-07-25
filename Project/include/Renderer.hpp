@@ -16,10 +16,10 @@ public:
 
     std::vector<sf::Vertex> m_vertices;
     sf::Vertex *m_pixels;
+    Zbuffer *m_zBuffer;
 private:
 
     sf::RenderWindow *m_window;
-    Zbuffer *m_zBuffer;
     // std::vector<sf::Vertex> m_vertices;
 
     // sf::Vertex *m_pixels;
