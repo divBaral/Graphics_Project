@@ -17,9 +17,6 @@ Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
     v = v.normalize();
     Vector u = (v.cross(w)).normalize();
 
-    // std::cerr<<"U: "<<u.x<<" "<<u.y<<" "<<u.z<<std::endl;
-    // std::cerr<<"U: "<<v.x<<" "<<v.y<<" "<<v.z<<std::endl;
-    // std::cerr<<"U: "<<w.x<<" "<<w.y<<" "<<w.z<<std::endl;
 
     // calcuate field of view in radian
     fv = fv * PI / 180;
@@ -34,10 +31,11 @@ Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
         Point(P), Point(A), Point(B), Point(C),
         Point(0, 0, 0), Point(0, 0, -1), Point(1, 0, -1), Point(0, 1, -1));
 
-    // Matrix4f Z(f - n, 0, 0, 0,
-    //            0, f - n, 0, 0,
-    //            0, 0, f, n,
-    //            0, 0, n - f, 0); // implement if you care near view
+    //opening the frustum
+    Matrix4f Z(f - n, 0, 0, 0,
+               0, f - n, 0, 0,
+               0, 0, f, n,
+               0, 0, n - f, 0); 
 
-    return Tper;
+    return Z*Tper;
 }

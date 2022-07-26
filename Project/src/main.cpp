@@ -26,25 +26,20 @@ int main()
     sf::Texture texture;
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
-    std::vector<std::vector<int>> faces;                                  // should we use this or not?
-    std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
+    std::vector<std::vector<int>> faces;                                  
+    std::map<std::string, std::vector<std::vector<int>>> materialNormals; 
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Image> images;
     objLoader("D:/Graphics_Project/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
 
     Camera cam;
-    Matrix4f Translate = af::Translate(Vector(0, 0, 0), Vector(0, 0, 0));
+    Matrix4f viewspace = cam.update({0.0f, 0.f, 40.f}, {0.0f, 0.0f, 0.0f});
 
-    Matrix4f viewport = cam.update({0.0f, 40.f, 10.f}, {0.0f, 0.0f, 0.0f});
-
-    Matrix3f ToPixel = af2::PointsToPoints({-1, 1}, {1, 1}, {-1, -1},
-                                           {0, 0}, {SCRWIDTH, 0}, {0, SCRHEIGHT});
-
+    
     loadTexture(materials, images);
     Renderer renderer(&window) ;
 
-    // viewport = cam.update( {50,0,50}, {50,50,0} );
     sf::Clock clock;
 
     for (std::string material : materials)
@@ -74,46 +69,43 @@ int main()
                 if (event.key.code == sf::Keyboard::Left)
                 {
                     f += 0.1;
-                    viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
                     f -= 0.1;
-                    viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
                 else if (event.key.code == sf::Keyboard::Up)
                 {
 
                     yy += 1.f;
-                    viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
                 else if (event.key.code == sf::Keyboard::Down)
                 {
 
                     yy -= 1.f;
-                    viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
                 else if (event.key.code == sf::Keyboard::W)
                 {
 
                     tt -= 1.f;
-                    viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
                 else if (event.key.code == sf::Keyboard::S)
                 {
 
                     tt += 1.f;
-                    viewport = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
                 }
-                //clearing pixel information and z-buffer
-                // renderer.clear();
             }
         }
 
         window.clear();
-        renderer.m_zBuffer->Clear();
-
-        // viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
+        //clearing z-buffer
+        renderer.clear();
 
         // frame begins
         // mapping points corresponding to the faces
@@ -126,46 +118,20 @@ int main()
                 Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
                 Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
 
-                p1 = viewport * p1;
-                p2 = viewport * p2;
-                p3 = viewport * p3;
-
-                Point p11=p1;
-                Point p12=p2;
-                Point p13=p3;
-
-                float n=10.f, f=100.f;
-
-                Matrix4f Z(f - n, 0, 0, 0,
-                        0, f - n, 0, 0,
-                        0, 0, f, n,
-                        0, 0, n - f, 0); // implement if you care near view
-
-                p1 = Z*p1;
-                p2 = Z*p2;
-                p3 = Z*p3;
+                //transformation to the view space i.e. camera space
+                p1 = viewspace * p1;
+                p2 = viewspace * p2;
+                p3 = viewspace * p3;
 
                 p1.homogenize();
                 p2.homogenize();
                 p3.homogenize();
 
-                float depth = p1.z*1000;
-                // std::cerr << p1.z << ' ' << p2.z << ' ' << p3.z << '\n';
-                // if( p1.z<-1 || p2.z<-1 || p3.z<-1 ) continue;
+                if( p1.z<-1 || p2.z<-1 || p3.z<-1 ) continue;
 
-                Point2d q1 = {p1.x, p1.y};
-                Point2d q2 = {p2.x, p2.y};
-                Point2d q3 = {p3.x, p3.y};
-
-                q1 = ToPixel * q1;
-                q2 = ToPixel * q2;
-                q3 = ToPixel * q3;
-
-                renderer.DrawTriangle({q1.x, q1.y}, {q2.x, q2.y}, {q3.x, q3.y}, p1, p2, p3, depth, images[material]);
-                // renderer.DrawTriangle(q1,q2,q3, images[material]);
+                renderer.DrawTriangle(p1,p2,p3,images[material]);
             }
         }
-        window.draw(renderer.m_pixels, SCRHEIGHT*SCRWIDTH, sf::Points);
         window.display();
     }
 

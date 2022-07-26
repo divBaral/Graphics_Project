@@ -104,9 +104,9 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
-        else if (material == "text")
+        else if (material == "Material2")
         {
-            if (!image.loadFromFile(dir + "text.jpg"))
+            if (!image.loadFromFile(dir + "roof.jpg"))
             {
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
