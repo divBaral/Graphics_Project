@@ -6,7 +6,7 @@
 #include <sstream>
 #include <stdio.h>
 
-void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::vector<std::vector<int>> &faces, std::map<std::string, std::vector<std::vector<int>>> &materialNormals, std::vector<std::string> &materials, std::map<std::string, std::vector<std::vector<int>>> &materialFaces)
+void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, std::vector<std::vector<float>> &normals, std::map<std::string, std::vector<std::vector<int>>> &materialNormals, std::vector<std::string> &materials, std::map<std::string, std::vector<std::vector<int>>> &materialFaces)
 {
     std::ifstream file;
     file.open(filePath);
@@ -15,6 +15,7 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
 
     std::vector<std::vector<int>> tempFacesForMaterial;
     std::vector<std::vector<int>> tempNormalsForMaterial;
+    std::string currentMaterial;
 
     while (file)
     {
@@ -49,9 +50,18 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
             std::string material;
             s >> material;
             if (tempFacesForMaterial.size())
-                materialFaces[materials.back()] = tempFacesForMaterial;
+                materialFaces[currentMaterial] = tempFacesForMaterial;
             tempFacesForMaterial.clear();
-            materials.push_back(material);
+            if (!materialFaces[material].size())
+            {
+                materials.push_back(material);
+            }
+            else
+            {
+                tempFacesForMaterial = materialFaces[material];
+                // tempNormalsForMaterial = materialNormals[material];
+            }
+            currentMaterial = material;
         }
         else if (line.compare(0, 1, "f") == 0)
         {
@@ -71,14 +81,13 @@ void objLoader(std::string filePath, std::vector<std::vector<float>> &vertices, 
             face.push_back(a);
             face.push_back(b);
             face.push_back(c);
-            normal.push_back(a);
-            normal.push_back(b);
-            normal.push_back(c);
-            faces.push_back(face); // needed?
+            // normal.push_back(a);
+            // normal.push_back(b);
+            // normal.push_back(c);
             tempFacesForMaterial.push_back(face);
-            tempNormalsForMaterial.push_back(normal);
+            // tempNormalsForMaterial.push_back(normal);
         }
     }
-    materialFaces[materials.back()] = tempFacesForMaterial;
-    materialNormals[materials.back()] = tempNormalsForMaterial;
+    materialFaces[currentMaterial] = tempFacesForMaterial;
+    // materialNormals[currentMaterial] = tempNormalsForMaterial;
 }

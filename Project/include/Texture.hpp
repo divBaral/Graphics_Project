@@ -5,7 +5,7 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
     for (std::string material : materials)
     {
         sf::Image image;
-        std::string dir = "D:/Graphics_Project/Graphics_Project/Project/res/textures/";
+        std::string dir = "/media/roshan/SSD/Projects/Graphics_Project/Project/res/textures/";
         if (material == "wood_balls_brown") // roof
         {
             if (!image.loadFromFile(dir + "roof.jpg"))
@@ -64,7 +64,7 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
         }
         else if (material == "plate_grey") // terrace , parking area?
         {
-            if (!image.loadFromFile(dir + "foundation.jpg"))
+            if (!image.loadFromFile(dir + "stone.jpg"))
             {
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
@@ -104,13 +104,20 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
-        else if (material == "Material2")
+        else if (material == "text")
         {
-            if (!image.loadFromFile(dir + "roof.jpg"))
+            if (!image.loadFromFile(dir + "text.jpg"))
             {
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
+        // else if (material == "poleLight")
+        // {
+        //     if (!image.loadFromFile(dir + "text.jpg"))
+        //     {
+        //         std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+        //     }
+        // }
         // else
         // {
         //     if (!image.loadFromFile(dir + "scene.jpg"))

@@ -26,19 +26,17 @@ int main()
     sf::Texture texture;
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
-    std::vector<std::vector<int>> faces;                                  
-    std::map<std::string, std::vector<std::vector<int>>> materialNormals; 
+    std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Image> images;
-    objLoader("D:/Graphics_Project/Graphics_Project/Project/res/models/house.obj", verticesx, normals, faces, materialNormals, materials, materialFaces);
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, materialNormals, materials, materialFaces);
 
     Camera cam;
     Matrix4f viewspace = cam.update({0.0f, 0.f, 40.f}, {0.0f, 0.0f, 0.0f});
 
-    
     loadTexture(materials, images);
-    Renderer renderer(&window) ;
+    Renderer renderer(&window);
 
     sf::Clock clock;
 
@@ -63,7 +61,10 @@ int main()
                 static float tt = 0.0f;
                 float xx = (tt + 40) * sin(f);
                 float zz = (tt + 40) * cos(f);
-                if( zz==0 ){ zz=-4.f; }
+                if (zz == 0)
+                {
+                    zz = -4.f;
+                }
                 static float yy = 0.f;
 
                 if (event.key.code == sf::Keyboard::Left)
@@ -104,7 +105,7 @@ int main()
         }
 
         window.clear();
-        //clearing z-buffer
+        // clearing z-buffer
         renderer.clear();
 
         // frame begins
@@ -118,7 +119,7 @@ int main()
                 Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
                 Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
 
-                //transformation to the view space i.e. camera space
+                // transformation to the view space i.e. camera space
                 p1 = viewspace * p1;
                 p2 = viewspace * p2;
                 p3 = viewspace * p3;
@@ -127,9 +128,10 @@ int main()
                 p2.homogenize();
                 p3.homogenize();
 
-                if( p1.z<-1 || p2.z<-1 || p3.z<-1 ) continue;
+                if (p1.z < -1 || p2.z < -1 || p3.z < -1)
+                    continue;
 
-                renderer.DrawTriangle(p1,p2,p3,images[material]);
+                renderer.DrawTriangle(p1, p2, p3, images[material]);
             }
         }
         window.display();
