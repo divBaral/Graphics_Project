@@ -27,20 +27,20 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
-        else if (material == "Wood_brown") // roof side structure
+        else if (material == "wood_brown") // roof side structure
         {
             if (!image.loadFromFile(dir + "frame.jpg"))
             {
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
-        else if (material == "foundation_brown_brick") // foundation small wall
-        {
-            if (!image.loadFromFile(dir + "foundation.jpg"))
-            {
-                std::cout << "ERROR:: Loading Texture Failed" << std::endl;
-            }
-        }
+        // else if (material == "foundation_brown_brick") // foundation small wall
+        // {
+        //     if (!image.loadFromFile(dir + "foundation.jpg"))
+        //     {
+        //         std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+        //     }
+        // }
         else if (material == "metal_grey") // gutter i.e. pipes
         {
             if (!image.loadFromFile(dir + "foundation.jpg"))
@@ -69,13 +69,13 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
-        else if (material == "outside_walls")
-        {
-            if (!image.loadFromFile(dir + "wall.jpg"))
-            {
-                std::cout << "ERROR:: Loading Texture Failed" << std::endl;
-            }
-        }
+        // else if (material == "outside_walls")
+        // {
+        //     if (!image.loadFromFile(dir + "wall.jpg"))
+        //     {
+        //         std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+        //     }
+        // }
         else if (material == "poleMaterial")
         {
             if (!image.loadFromFile(dir + "stone.jpg"))
@@ -111,20 +111,20 @@ void loadTexture(std::vector<std::string> materials, std::map<std::string, sf::I
                 std::cout << "ERROR:: Loading Texture Failed" << std::endl;
             }
         }
-        // else if (material == "poleLight")
-        // {
-        //     if (!image.loadFromFile(dir + "text.jpg"))
-        //     {
-        //         std::cout << "ERROR:: Loading Texture Failed" << std::endl;
-        //     }
-        // }
-        // else
-        // {
-        //     if (!image.loadFromFile(dir + "scene.jpg"))
-        //     {
-        //         std::cout << "ERROR:: Loading Texture Failed" << std::endl;
-        //     }
-        // }
+        else if (material == "poleLight")
+        {
+            if (!image.loadFromFile(dir + "light.jpg"))
+            {
+                std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+            }
+        }
+        else
+        {
+            if (!image.loadFromFile(dir + "wall.jpg"))
+            {
+                std::cout << "ERROR:: Loading Texture Failed" << std::endl;
+            }
+        }
         images[material] = image;
     }
 }
