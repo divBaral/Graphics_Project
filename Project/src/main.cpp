@@ -12,7 +12,9 @@
 #include "Camera.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
+#include "material.hpp"
 #include "objParser.hpp"
+#include "mtlParser.hpp"
 #include "glalib.hpp"
 #include "Zbuffer.hpp"
 
@@ -27,10 +29,12 @@ int main()
     std::vector<std::vector<float>> verticesx;
     std::vector<std::vector<float>> normals;
     std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
+    std::map<std::string, material> materialProperties;                   // material properties
     std::vector<std::string> materials;
     std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Image> images;
     objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, materialNormals, materials, materialFaces);
+    mtlLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.mtl", materials, materialProperties);
 
     Camera cam;
     Matrix4f viewspace = cam.update({0.0f, 0.f, 40.f}, {0.0f, 0.0f, 0.0f});
@@ -42,7 +46,7 @@ int main()
 
     for (std::string material : materials)
     {
-        std::cout << material << std::endl;
+        std::cout<<material<<std::endl;
     }
     while (window.isOpen())
     {

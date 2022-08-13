@@ -32,15 +32,15 @@ float &Zbuffer::At(int x, int y)
     // if( x>=0 && x<width && y>=0 && y<height )
     return bufferArray[y * width + x];
     // float retVal = 100.f;
-    // return retVal; 
+    // return retVal;
     // search for the pixel depth
 }
 
 bool Zbuffer::testAndSet(int x, int y, float depth)
 {
-    if (depth >= bufferArray[ y*width + x]) // we just take care of the element with lowest
-    {                          // depth we dont care about other elements in that
-        bufferArray[y * width + x] = depth; // pixel, we get lowest depth and we rasterize it, that's all
+    if (depth >= bufferArray[y * width + x]) // we just take care of the element with lowest
+    {                                        // depth we dont care about other elements in that
+        bufferArray[y * width + x] = depth;  // pixel, we get lowest depth and we rasterize it, that's all
         return true;
     }
     return false;

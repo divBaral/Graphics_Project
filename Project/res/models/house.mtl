@@ -1,15 +1,16 @@
-# Blender MTL File: 'house.blend'
-# Material Count: 9
+# Blender MTL File: 'Casa.blend'
+# Material Count: 14
 
-newmtl foundation_brown_brick
-Ns 250.000000
+newmtl floor
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.273830 0.242849 0.149908
-Ks 0.500000 0.500000 0.500000
+Kd 0.800000 0.800000 0.800000
+Ks 1.000000 1.000000 1.000000
 Ke 0.000000 0.000000 0.000000
-Ni 1.000000
+Ni 1.450000
 d 1.000000
 illum 2
+map_Kd /home/roshan/Downloads/Texturas/Pack Texturas (Simples)/PINTURA/3dm_pintura_101b.jpg
 
 newmtl glass_window
 Ns 250.000000
@@ -20,6 +21,17 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+
+newmtl ground
+Ns 1000.000000
+Ka 0.899371 0.899371 0.899371
+Kd 0.800000 0.800000 0.800000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd /home/roshan/Downloads/Texturas/Pack-texturas-gratuito/Pack texturas gratuito/20 grama.jpg
 
 newmtl metal_dark_brown
 Ns 250.000000
@@ -68,6 +80,47 @@ Kd 0.201900 0.201900 0.201900
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl pole
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.147580 0.147580 0.147580
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl poleLight
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 0.000000
+d 1.000000
+illum 2
+map_Kd /home/roshan/Downloads/Texturas/HDRI/HdrOutdoorResidentialRiverwalkAfternoonClear001/REGULAR/3K/HdrOutdoorResidentialRiverwalkAfternoonClear001_JPG_3K.jpg
+
+newmtl poleMaterial
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.425426 0.425426 0.425426
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl text
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
 d 1.000000
 illum 2
 
