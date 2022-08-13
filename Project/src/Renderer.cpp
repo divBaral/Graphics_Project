@@ -161,19 +161,18 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
                 {
                     sf::Color color = sf::Color(0, 255, 0);
                     if (image.getSize().x != 0 || image.getSize().y != 0)
-                        color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
+                    color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
 
-                //     int xx = 0;int yy = 0; 
-                //     float dp = (x*x+y*y+depth*depth);
-                //     float power = 100000/ (float)(dp );
-                //     // std::cout << power << std::endl;
-                //     // if (power > 200)
-                //     //     power = 200;
-                //    float f = fabs(depth)*power/10;
-                //    if ( f>0.9) f = 0.9;
+                        int xx = 0;int yy = 0;
+                        float dp = (x*x+y*y+depth*depth);
+                        float power = 100000/ (float)(dp );
+                        // std::cout << power << std::endl;
+                        // if (power > 200)
+                        //     power = 200;
+                       float f = fabs(depth)*power/10;
+                       if ( f>0.9) f = 0.9;
 
-                  // std::cerr<<f<<std::endl;
-                   sf::Color cf = {color.r * (1), color.g * (1), color.b * (1)};
+                    sf::Color cf = {color.r * (1), color.g * (1), color.b * (1)};
                     sf::Vertex v(sf::Vector2f(x, y), cf);
                     m_window->draw(&v, 1, sf::Points);
                 }

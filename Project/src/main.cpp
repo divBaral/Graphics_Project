@@ -13,6 +13,7 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "material.hpp"
+#include "Triangle.hpp"
 #include "objParser.hpp"
 #include "mtlParser.hpp"
 #include "glalib.hpp"
@@ -26,14 +27,11 @@ int main()
     sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "SFML works!");
     window.setFramerateLimit(30);
     sf::Texture texture;
-    std::vector<std::vector<float>> verticesx;
-    std::vector<std::vector<float>> normals;
-    std::map<std::string, std::vector<std::vector<int>>> materialNormals; // faces mapped to normals
-    std::map<std::string, material> materialProperties;                   // material properties
+    std::map<std::string, std::vector<Triangle>> materialTriangles;
+    std::map<std::string, material> materialProperties; // material properties
     std::vector<std::string> materials;
-    std::map<std::string, std::vector<std::vector<int>>> materialFaces;
     std::map<std::string, sf::Image> images;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", verticesx, normals, materialNormals, materials, materialFaces);
+    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", materials, materialTriangles);
     mtlLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.mtl", materials, materialProperties);
 
     Camera cam;
@@ -44,10 +42,6 @@ int main()
 
     sf::Clock clock;
 
-    for (std::string material : materials)
-    {
-        std::cout<<material<<std::endl;
-    }
     while (window.isOpen())
     {
         sf::Event event;
@@ -116,12 +110,12 @@ int main()
         // mapping points corresponding to the faces
         for (std::string material : materials)
         {
-            for (std::vector<int> face : materialFaces[material])
+            for (Triangle t : materialTriangles[material])
             {
                 // points p1, p2 and p3 are points of a face(triangle)
-                Point p1 = {verticesx[face[0] - 1][0], verticesx[face[0] - 1][1], verticesx[face[0] - 1][2]};
-                Point p2 = {verticesx[face[1] - 1][0], verticesx[face[1] - 1][1], verticesx[face[1] - 1][2]};
-                Point p3 = {verticesx[face[2] - 1][0], verticesx[face[2] - 1][1], verticesx[face[2] - 1][2]};
+                Point p1 = {t.v0[0], t.v0[1], t.v0[2]};
+                Point p2 = {t.v1[0], t.v1[1], t.v1[2]};
+                Point p3 = {t.v2[0], t.v2[1], t.v2[2]};
 
                 // transformation to the view space i.e. camera space
                 p1 = viewspace * p1;
