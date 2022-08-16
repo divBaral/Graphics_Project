@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <Triangle.hpp>
+#include "glalib.hpp"
 
 void objLoader(std::string filePath, std::vector<std::string> &materials, std::map<std::string, std::vector<Triangle>> &materialTriangles)
 {
@@ -89,23 +90,35 @@ void objLoader(std::string filePath, std::vector<std::string> &materials, std::m
             stream1 >> a >> slash >> texture1 >> slash >> normal1;
             stream2 >> b >> slash >> texture2 >> slash >> normal2;
             stream3 >> c >> slash >> texture3 >> slash >> normal3;
-            for (int i = 0; i < 3; i++)
-            {
-                t.v0[i] = vertices[a - 1][i];
-                t.v1[i] = vertices[b - 1][i];
-                t.v2[i] = vertices[c - 1][i];
+            // for (int i = 0; i < 3; i++)
+            // {
+            //     t.v0[i] = vertices[a - 1][i];
+            //     t.v1[i] = vertices[b - 1][i];
+            //     t.v2[i] = vertices[c - 1][i];
 
-                t.n0[i] = normals[normal1 - 1][i];
-                t.n1[i] = normals[normal2 - 1][i];
-                t.n2[i] = normals[normal3 - 1][i];
+            //     t.n0[i] = normals[normal1 - 1][i];
+            //     t.n1[i] = normals[normal2 - 1][i];
+            //     t.n2[i] = normals[normal3 - 1][i];
 
-                if (i == 2)
-                    break;
+            //     if (i == 2)
+            //         break;
 
-                t.t0[i] = textures[texture1 - 1][i];
-                t.t1[i] = textures[texture2 - 1][i];
-                t.t2[i] = textures[texture3 - 1][i];
-            }
+            //     t.t0[i] = textures[texture1 - 1][i];
+            //     t.t1[i] = textures[texture2 - 1][i];
+            //     t.t2[i] = textures[texture3 - 1][i];
+            // }
+            t.v0 = Point(vertices[a - 1][0], vertices[a - 1][1],vertices[a - 1][2]);
+            t.v1 = Point(vertices[b - 1][0], vertices[b - 1][1],vertices[b- 1][2]);
+            t.v2 = Point(vertices[c - 1][0], vertices[c - 1][1],vertices[c - 1][2]);
+
+            t.n0 = Vector{normals[normal1 - 1][0], normals[normal2 - 1][0],normals[normal3 - 1][0]};
+            t.n1 = Vector{normals[normal1 - 1][1], normals[normal2 - 1][1],normals[normal3 - 1][1]};
+            t.n2 = Vector{normals[normal1 - 1][2], normals[normal2 - 1][2],normals[normal3 - 1][2]};
+
+            t.tv0 = Vector{textures[texture1 - 1][0], textures[texture2 - 1][0],0};
+            t.tv1 = Vector{textures[texture1 - 1][1], textures[texture2 - 1][1],0};
+            t.tv2 = Vector{textures[texture1 - 1][2], textures[texture2 - 1][2],0};
+
             tempTriangles.push_back(t);
         }
         else

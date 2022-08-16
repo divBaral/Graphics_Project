@@ -31,8 +31,8 @@ int main()
     std::map<std::string, material> materialProperties; // material properties
     std::vector<std::string> materials;
     std::map<std::string, sf::Image> images;
-    objLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.obj", materials, materialTriangles);
-    mtlLoader("/media/roshan/SSD/Projects/Graphics_Project/Project/res/models/house.mtl", materials, materialProperties);
+    objLoader("/home/baral/Downloads/graphicslearn/Project/res/models/house.obj", materials, materialTriangles);
+    mtlLoader("/home/baral/Downloads/graphicslearn/Project/res/models/house.mtl", materials, materialProperties);
 
     Camera cam;
     Matrix4f viewspace = cam.update({0.0f, 0.f, 40.f}, {0.0f, 0.0f, 0.0f});
@@ -110,26 +110,26 @@ int main()
         // mapping points corresponding to the faces
         for (std::string material : materials)
         {
-            for (Triangle t : materialTriangles[material])
+            for (Triangle& t : materialTriangles[material])
             {
                 // points p1, p2 and p3 are points of a face(triangle)
-                Point p1 = {t.v0[0], t.v0[1], t.v0[2]};
-                Point p2 = {t.v1[0], t.v1[1], t.v1[2]};
-                Point p3 = {t.v2[0], t.v2[1], t.v2[2]};
+                Point p1 = t.v0;
+                Point p2 = t.v1;
+                Point p3 = t.v2;
 
                 // transformation to the view space i.e. camera space
-                p1 = viewspace * p1;
-                p2 = viewspace * p2;
-                p3 = viewspace * p3;
+                // p1 = viewspace * p1;
+                // p2 = viewspace * p2;
+                // p3 = viewspace * p3;
 
-                p1.homogenize();
-                p2.homogenize();
-                p3.homogenize();
+                // p1.homogenize();
+                // p2.homogenize();
+                // p3.homogenize();
 
                 if (p1.z < -1 || p2.z < -1 || p3.z < -1)
                     continue;
 
-                renderer.DrawTriangle(p1, p2, p3, images[material]);
+                renderer.DrawTriangle(p1, p2, p3, viewspace, images[material], materialProperties[material]);
             }
         }
         window.display();

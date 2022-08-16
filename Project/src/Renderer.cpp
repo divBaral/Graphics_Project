@@ -35,15 +35,54 @@ void Renderer::viewport(Point2d &p1, Point2d &p2, Point2d &p3)
     p2 = ToPixel * p2;
     p3 = ToPixel * p3;
 }
+sf::Color applyLighting2(Vector light, Vector normal, Vector view, float ambientIntensity, material m) {
+	float mag = light.length() / 40;
+	light = light.normalize();
+	normal = normal.normalize();
+	view = view.normalize();
 
-void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Image &image)
+	uint8_t color[3];
+
+	float final_intensity[3];
+
+	Vector reflection =  normal*(2*light.dot(normal))  - light;
+	for (int i = 0; i < 3; i++) {
+		float intensity = 0;
+		float ambient = m.ka[i] * ambientIntensity;
+		float diffuse = std::max(light.dot( normal), 0.0f) * m.kd[i] / mag;
+		float specular = diffuse > 0 ? pow(std::max(reflection.dot(view), 0.0f), m.ns) * m.ks[i] / mag : 0;
+		//std::cout << specular << std::endl;
+		intensity = ambient + diffuse + specular;
+		final_intensity[i] = intensity;
+	}
+	float ma  = std::max({ final_intensity[0], final_intensity[1], final_intensity[2] });
+	float scale;
+	if (ma <= 1) {
+		scale = 1;
+	}else{
+		scale = 1 / ma;
+	}
+
+	for (int i = 0; i < 3; i++) {
+		final_intensity[i] *= scale;
+		color[i] = final_intensity[i] * 255;
+	}
+
+
+	return(sf::Color(color[0], color[1], color[2]));
+}
+void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4f &viewspace, sf::Image &image, material& material)
 {
     // converting to 2d coordinates for viewport transform
-    Point2d p0 = {point0.x, point0.y};
-    Point2d p1 = {point1.x, point1.y};
-    Point2d p2 = {point2.x, point2.y};
+    auto q0 = viewspace * point0;
+    auto q1 = viewspace * point1;
+    auto q2 = viewspace * point2;
+    Point2d p0 = {q0.x, q0.y};
+    Point2d p1 = {q1.x, q1.y};
+    Point2d p2 = {q2.x, q2.y};
 
     // viewport transform
+    
     viewport(p0, p1, p2);
 
     // here p0,p1,p2 are coordinates scaled to screen size
@@ -77,6 +116,7 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
 
             // swapping unscaled/original coordinates
             std::swap(point0, point1);
+            std::swap(q0, q1);
         }
 
         if (std::tie(y2, x2) < std::tie(y0, x0))
@@ -87,6 +127,7 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
 
             // swapping unscaled/original coordinates
             std::swap(point0, point2);
+            std::swap(q0, q2);
         }
 
         if (std::tie(y2, x2) < std::tie(y1, x1))
@@ -97,6 +138,7 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
 
             // swapping unscaled/original coordinates
             std::swap(point1, point2);
+             std::swap(q1, q2);
         }
 
         // If triangle has no area, return
@@ -104,8 +146,8 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
             return;
 
         // calculating the direction ratios of normal to the surface of the triangle p0,p1,p2
-        Vector side1(p2.x - p1.x, p2.y - p1.y, point2.z - point1.z);
-        Vector side2(p0.x - p1.x, p0.y - p1.y, point0.z - point1.z);
+        Vector side1(p2.x - p1.x, p2.y - p1.y, q2.z - q1.z);
+        Vector side2(p0.x - p1.x, p0.y - p1.y, q0.z - q1.z);
         // //cross product
         Vector normal = side1.cross(side2);
 
@@ -124,7 +166,7 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
         float b = normal.y;
         float c = normal.z;
         // calculating constant value in the equation of the triangle
-        float d = -1 * (a * p0.x + b * p0.y + c * point0.z);
+        float d = -1 * (a * q0.x + b * q0.y + c * q0.z);
 
         // filling the triangle
         RasterizeTriangle(
@@ -148,7 +190,7 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
 
                 for (; x <= endx; ++x)
                 {
-                    float depth = (-a * x - b * y - d) / c;
+                    float depth = (-a *x - b * y - d) / c;
                     Plot(x, y, depth);
                 }
 
@@ -163,16 +205,13 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, sf::Ima
                     if (image.getSize().x != 0 || image.getSize().y != 0)
                     color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
 
-                        int xx = 0;int yy = 0;
-                        float dp = (x*x+y*y+depth*depth);
-                        float power = 100000/ (float)(dp );
-                        // std::cout << power << std::endl;
-                        // if (power > 200)
-                        //     power = 200;
-                       float f = fabs(depth)*power/10;
-                       if ( f>0.9) f = 0.9;
-
-                    sf::Color cf = {color.r * (1), color.g * (1), color.b * (1)};
+                    Vector vertexcoordinates = 
+                    Vector light = {4, 4, 4};
+                    Vector campos = {0,0,0};
+                    // normal
+                    //
+                    //material.print();
+                    sf::Color cf = applyLighting2(light-vertexcoordinates , normal, campos-vertexcoordinates,0.4, material );
                     sf::Vertex v(sf::Vector2f(x, y), cf);
                     m_window->draw(&v, 1, sf::Points);
                 }

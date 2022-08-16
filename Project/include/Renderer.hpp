@@ -2,7 +2,7 @@
 
 #include "Zbuffer.hpp"
 #include "glalib.hpp"
-
+#include "material.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector> 
@@ -11,7 +11,7 @@ class Renderer
 {
 public:
     Renderer(sf::RenderWindow *window);
-    void DrawTriangle( Point&, Point&, Point&, sf::Image&);
+    void DrawTriangle( Point&, Point&, Point&, Matrix4f&, sf::Image&, material& material);
     void viewport( Point2d&, Point2d&, Point2d& );
     void clear();
 
