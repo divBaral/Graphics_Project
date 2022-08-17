@@ -108,18 +108,19 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
 	if(y1>h){y1=h;}	
 
 	Vector vertexPw[3] = {q0, q1, q2};
-	float vertexW[3] = {-1/q0.z, -1/q1.z, -1/q2.z};
+	float vertexW[3] = {-1/q0.z, -1/q0.z, -1/q0.z};
 	Vector n = {1,1,1};//normals to imported.
 	Vector vertexNw[3] = {n,n, n};
    
     for ( int y=y0; y<y1; ++y) {
         for ( int x = x0; x<x1; ++x) {
-			
             Point2d Q(x+0.5f, y+0.5f);
             float alpha = bary2D(p0, p1, p2, Q);
             float beta = bary2D(p2, p0, p1, Q);
             float gamma = bary2D(p1, p2, p0, Q);
             float weight2D[] = {alpha, beta, gamma};
+
+			//if points lies in triangle
             if(weight2D[0]>0 && weight2D[1]>0 && weight2D[2]>0){
 					//interpolate depth
 					float w = 0.0f;

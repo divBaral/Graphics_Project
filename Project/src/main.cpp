@@ -126,8 +126,7 @@ int main()
                 // p2.homogenize();
                 // p3.homogenize();
 
-                if (p1.z < -1 || p2.z < -1 || p3.z < -1)
-                    continue;
+              
 
                 renderer.DrawTriangle(p1, p2, p3, viewspace, images[material], materialProperties[material]);
             }
