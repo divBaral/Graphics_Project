@@ -1,6 +1,4 @@
 #pragma once
-
-#include "Zbuffer.hpp"
 #include "DepthBuffer.hpp"
 #include "glalib.hpp"
 #include "material.hpp"
@@ -20,5 +18,4 @@ public:
     sf::Vertex *m_pixels;
 private:
     sf::RenderWindow *m_window;
-    Zbuffer *m_zBuffer;
 };

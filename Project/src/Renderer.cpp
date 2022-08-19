@@ -1,5 +1,4 @@
 #include "Renderer.hpp"
-#include "Zbuffer.hpp"
 #include "Rasterize.hpp"
 #include <iostream>
 #include <vector>
@@ -10,12 +9,11 @@
 Renderer::Renderer(sf::RenderWindow *window)
 {
     m_window = window;
-    m_zBuffer = new Zbuffer(m_window->getSize().x, m_window->getSize().y);
+   
 }
 void Renderer::clear()
 {
-    // clearing z-buffer
-    m_zBuffer->Clear();
+  
 }
 Vector2d perspectiveProject(Vector P, int width, int height){
 	Vector2d Q(-P.x/P.z,-P.y/P.z);
