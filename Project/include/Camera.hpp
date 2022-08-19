@@ -5,7 +5,7 @@ class Camera
 public:
     Camera();
     Matrix4f GetViewMatrix();
-    Matrix4f update(Point CameraPosition, Point TargetPosition);
+    const Matrix4f update(Point CameraPosition, Point TargetPosition);
 
 
 private:

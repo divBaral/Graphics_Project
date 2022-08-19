@@ -11,13 +11,10 @@
 // headers
 #include "Camera.hpp"
 #include "Renderer.hpp"
-#include "Texture.hpp"
-#include "material.hpp"
 #include "Triangle.hpp"
-#include "objParser.hpp"
-#include "mtlParser.hpp"
 #include "glalib.hpp"
 #include "DepthBuffer.hpp"
+#include "kojuParser.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
 
@@ -25,22 +22,22 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "SFML works!");
     window.setFramerateLimit(30);
-    sf::Texture texture;
-    std::map<std::string, std::vector<Triangle>> materialTriangles;
-    std::map<std::string, material> materialProperties; // material properties
-    std::vector<std::string> materials;
-    std::map<std::string, sf::Image> images;
-    objLoader("/home/baral/Downloads/graphicslearn/Project/res/models/house.obj", materials, materialTriangles);
-    mtlLoader("/home/baral/Downloads/graphicslearn/Project/res/models/house.mtl", materials, materialProperties);
 
+    //load scene/mesh in vector
+    std::vector<Triangle> scene;
+    LoadObject(scene, "/home/baral/Downloads/graphicslearn/Project/res/models/house.mtl","/home/baral/Downloads/graphicslearn/Project/res/models/house.obj");
+
+    //initiaze camera properties
     Camera cam;
-    Matrix4f viewspace = cam.update({0.0f, 0.f, 40.f}, {0.0f, 0.0f, 0.0f});
-
-    loadTexture(materials, images);
+    float RadiusOfSight = 30.f; 
+    Point initialPos(0.f,0.f,RadiusOfSight);
+    Point targetPos(0,0,0);
+    Matrix4f viewspace = cam.update(initialPos, targetPos);
     Renderer renderer(&window);
 
-    sf::Clock clock;
-
+    //transform vertex attributes ready for drawn
+    std::vector<sf::Vertex> drawablescene;
+    bool eventoccured = true;
     while (window.isOpen())
     {
         sf::Event event;
@@ -48,8 +45,8 @@ int main()
         static float f = 0;
         static float tt = 0.0f;
         static float yy = 0.f;
-        float xx = (tt + 40) * sin(f);
-        float zz = (tt + 40) * cos(f);
+        float xx = (tt + RadiusOfSight) * sin(f);
+        float zz = (tt + RadiusOfSight) * cos(f);
 
         while (window.pollEvent(event))
         {
@@ -58,7 +55,7 @@ int main()
 
             if (event.type == sf::Event::KeyPressed)
             {
-
+                eventoccured = true;
                
                 if (zz == 0)
                 {
@@ -70,6 +67,7 @@ int main()
                 {
                     f += 0.1;
                     viewspace = cam.update({xx, yy, zz}, {0.0f, 0.0f, 0.0f});
+                    
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
@@ -104,25 +102,21 @@ int main()
         }
 
         window.clear();
-        // clearing z-buffer
-        renderer.clear();
 
-        // frame begins
-        // mapping points corresponding to the faces
         DepthBuffer depthbuffer(window.getSize().x, window.getSize().y, INFINITY);
         Point camepos(xx, yy, zz);
-        for (std::string material : materials)
-        {
-            for (Triangle& t : materialTriangles[material])
-            {
-                // points p1, p2 and p3 are points of a face(triangle)
-                Point p1 = t.v0;
-                Point p2 = t.v1;
-                Point p3 = t.v2;
-                renderer.DrawTriangle(p1, p2, p3, viewspace, images[material], materialProperties[material], depthbuffer, camepos);
+        
+        //draw each triangle and add to drawablescene
+        if ( eventoccured ) {
+            drawablescene.resize(0);
+            for ( const auto& t : scene ) {
+                renderer.DrawTriangle(t, viewspace, depthbuffer, camepos, drawablescene);
             }
+            eventoccured = false;
         }
+        window.draw(&drawablescene[0], drawablescene.size(), sf::Points);
         window.display();
+        
     }
 
     return 0;

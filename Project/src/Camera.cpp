@@ -4,7 +4,7 @@ Camera::Camera()
 {
 }
 // pass world coordinates ranges i
-Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
+const Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
 {
     // calculate uvw of camera
     fv = 120;        // field of view

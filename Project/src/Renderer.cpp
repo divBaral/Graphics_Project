@@ -19,7 +19,7 @@ Vector2d perspectiveProject(Vector P, int width, int height){
 	Vector2d Q(-P.x/P.z,-P.y/P.z);
 	const float aspect = float(height)/width;
 
-	float fieldOfViewX = PI/2;
+	float fieldOfViewX = 2*PI/3;
 	const float s = -2.0*tan(fieldOfViewX*0.5f);
 
 	Q.x = width*(-Q.x/s + 0.5f);
@@ -45,41 +45,45 @@ void Renderer::viewport(Point2d &p1, Point2d &p2, Point2d &p3)
     p2 = ToPixel * p2;
     p3 = ToPixel * p3;
 }
-sf::Color applyLighting2(Vector light, Vector normal, Vector view, float ambientIntensity, material m) {
-	float mag = light.length() / 40;
-	light = light.normalize();
+sf::Color applyLighting2(std::vector<Vector>& lightArray, Vector camepos, Point P, Vector normal, float ambientIntensity, material m) {
+	float color[] = {0,0,0};
 	normal = normal.normalize();
-	view = view.normalize();
-
-	uint8_t color[3];
-
-	float final_intensity[3];
-
-	Vector reflection =  normal*(2*light.dot(normal))  - light;
-	for (int i = 0; i < 3; i++) {
-		float intensity = 0;
-		float ambient = m.ka[i] * ambientIntensity;
-		float diffuse = std::max(light.dot( normal), 0.0f) * m.kd[i] / mag;
-		float specular = diffuse > 0 ? pow(std::max(reflection.dot(view), 0.0f), m.ns) * m.ks[i] / mag : 0;
-		//std::cout << specular << std::endl;
-		intensity = ambient + diffuse + specular;
-		final_intensity[i] = intensity;
+	Vector view = (camepos-P).normalize();
+	float diffuse = 0.0f;
+	float specular = 0.0f;
+	float intensity=0.0f; //[]= {0.5, 0.4, 0.3}; //move this
+	for ( int i=0; i<3; ++i ) {
+		for ( auto& light : lightArray ) {
+		
+		light = light-P;
+		auto evaulateintesity = [&] (float x) -> float { 
+			
+			return x/30;
+			return 1/(0.01*x*x+0.01*x) ;
+			
+		};
+		float intensity = evaulateintesity(light.length());
+		light = light.normalize();
+		Vector reflection =  normal*(2*light.dot(normal))  - light;
+		//std::cerr<<"intesity : "<<intensity<<std::endl;
+		float diff =  intensity * std::max(normal.dot(light),0.f );
+		float spec = diffuse > 0 ? intensity*pow(std::max(reflection.dot(view), 0.0f), m.ns) : 0;
+		specular+=spec;
+		diffuse += diff;
+		}
+		color[i] = ambientIntensity*m.ka[i] +  diffuse * m.kd[i] + specular*m.ks[i];
+		color[i] = color[i] * 255;
 	}
-	float ma  = std::max({ final_intensity[0], final_intensity[1], final_intensity[2] });
-	float scale;
-	if (ma <= 1) {
-		scale = 1;
-	}else{
-		scale = 1 / ma;
+	float maxi = std::max({color[0], color[1], color[2] });
+	float factor = 255*1/maxi;
+	if ( maxi > 255 ) {
+		for ( int i =0; i<3; ++i ) {
+			color[i] *= factor;
+		}
 	}
-
-	for (int i = 0; i < 3; i++) {
-		final_intensity[i] *= scale;
-		color[i] = final_intensity[i] * 255;
-	}
-
-
-	return(sf::Color(color[0], color[1], color[2]));
+	
+	//return sf::Color::White;
+	return sf::Color(color[0], color[1], color[2]);
 }
 //distance of point Q from line containing points A & B
 float lineDistance2D(const Point2d& A,const Point2d& B, const Point2d& Q){
@@ -92,13 +96,13 @@ float lineDistance2D(const Point2d& A,const Point2d& B, const Point2d& Q){
 float bary2D(const Point2d& A, const Point2d& B, const Point2d& C, const Point2d& Q){
 	return ((lineDistance2D(B,C,Q))/(lineDistance2D(B,C,A)));
 }
-void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4f &viewspace, sf::Image &image, material& material,DepthBuffer& depthbuffer, Point& camepos)
+void Renderer::DrawTriangle(const Triangle& t,  Matrix4f &viewspace, DepthBuffer& depthbuffer, const Point& camepos, std::vector<sf::Vertex>& Drawablescene)
 {
     // converting to 2d coordinates for viewport transform
 	// viewspace = Matrix4f();
-    auto q0 = viewspace * point0;
-    auto q1 = viewspace * point1;
-    auto q2 = viewspace * point2;
+    auto q0 = viewspace * t.v0;
+    auto q1 = viewspace * t.v1;
+    auto q2 = viewspace * t.v2;
 
 	float width = m_window->getSize().x;
 	float height = m_window->getSize().y;
@@ -106,7 +110,8 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
     Point2d p1 = perspectiveProject(q1, width, height);
     Point2d p2 = perspectiveProject(q2, width, height);
 
-	//viewport(p0, p1, p2);
+	
+
     //compute bb
     auto x0 = std::min({p0.x, p1.x, p2.x});
     auto y0 = std::min({p0.y, p1.y, p2.y});
@@ -115,17 +120,15 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
 
 	float w = m_window->getSize().x;
     float h = m_window->getSize().y;
-
+	if ( x0<0 || x1>w || y0<0 || y1>h ) return;
 	if(x0<0){x0=0;}
 	if(y0<0){y0=0;}
 	if(x1>w){x1=w;}
 	if(y1>h){y1=h;}	
 
+	
 	Vector vertexPw[3] = {-q0/q0.z, -q1/q1.z, -q2/q2.z};
-	float vertexW[3] = {-1/q0.z, -1/q1.z, -1/q2.z};
-	Vector n = {1,1,1};//normals to imported.
-	Vector vertexNw[3] = {n,n, n};
-   
+	float vertexW[3] = {-1/q0.z, -1/q1.z, -1/q2.z};   
     for ( int y=y0; y<y1; ++y) {
         for ( int x = x0; x<x1; ++x) {
             Point2d Q(x+0.5f, y+0.5f);
@@ -142,26 +145,28 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
 						w += weight2D[k] * vertexW[k];
 					}
 					Point pW = Point();
-					Vector nW = Vector();
 					//interpolate projective attributes
 					for(int k = 0;k<3;++k){
 						pW += vertexPw[k]*weight2D[k];
-						//nW += vertexNw[k]*weight2D[k];
+						
 					}
 
 					//recover interpolated attributes
 					 Point P = pW/w;
+					
 					const float depth = -P.z*10;//P.length();
 
 					//depth test
 					if(  depth<depthbuffer.get(x,y)){
 						depthbuffer.set(x,y, depth);
-						auto color = sf::Color::White;
-						if (image.getSize().x != 0 || image.getSize().y != 0)
-                        	color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);
-						
+						Point vertexCoordinates = P;
+						Vector normal = (t.v1-t.v0).cross(t.v2-t.v0);
+						if ( t.hasnormal ) normal = t.n0*alpha+  t.n1*beta + t.n2*gamma;
+						std::vector<Vector > lightArray = {Vector(4,4, -2), Vector(-4,4,2)};
+						auto color = applyLighting2(lightArray, camepos, P, normal, .3f, t.mtl  );	
 						sf::Vertex v(sf::Vector2f(x, y), color);
-                    	m_window->draw(&v, 1, sf::Points);
+						Drawablescene.push_back(v);
+                    	
 						
 					}
 				}

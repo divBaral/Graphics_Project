@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <Triangle.hpp>
 #include "glalib.hpp"
+#include "material.hpp"
+
 
 void objLoader(std::string filePath, std::vector<std::string> &materials, std::map<std::string, std::vector<Triangle>> &materialTriangles)
 {
@@ -121,8 +123,36 @@ void objLoader(std::string filePath, std::vector<std::string> &materials, std::m
 
             tempTriangles.push_back(t);
         }
-        else
-            continue;
+        // else if(line.substr(0, 2) == "f ") {
+		// 	std::string v1, v2, v3;
+        //     std::stringstream iss;
+		// 	iss >> v1 >> v2 >> v3;
+		// 	std::string x1 = v1.substr(0, v1.find("/"));
+		// 	std::string x2 = v2.substr(0, v2.find("/"));
+		// 	std::string x3 = v3.substr(0, v3.find("/"));
+		// 	Triangle t(vertices[stoi(x1)-1], vertices[stoi(x2)-1], vertices[stoi(x3)-1]);
+
+		// 	if (std::count(v1.begin(), v1.end(), '/') == 2) {
+		// 		int first_pos = v1.find("/");
+		// 		int second_pos = v1.find("/", first_pos + 1);
+
+		// 		std::string n0 = v1.substr(second_pos + 1, v1.size() - second_pos - 1);
+
+		// 		first_pos = v2.find("/");
+		// 		second_pos = v2.find("/", first_pos + 1);
+		// 		std::string n1 = v2.substr(second_pos + 1, v2.size() - second_pos - 1);
+
+		// 		first_pos = v3.find("/");
+		// 		second_pos = v3.find("/", first_pos + 1);
+		// 		std::string n2 = v3.substr(second_pos + 1, v3.size() - second_pos - 1);
+		// 		t.n0 = normals[stoi(n0) - 1];
+		// 		t.n1 = normals[stoi(n1) - 1];
+		// 		t.n2 = normals[stoi(n2) - 1];
+		// 		t.hasnormal = true;
+		// 	}
+		// 	//t.mtl = currentMaterial;
+		// 	tempTriangles.push_back(t);
+		// }
     }
     materialTriangles[currentMaterial] = tempTriangles;
 }
