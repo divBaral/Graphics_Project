@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Zbuffer.hpp"
+#include "DepthBuffer.hpp"
 #include "glalib.hpp"
 #include "material.hpp"
 #include <SFML/Graphics.hpp>
@@ -11,7 +12,7 @@ class Renderer
 {
 public:
     Renderer(sf::RenderWindow *window);
-    void DrawTriangle( Point&, Point&, Point&, Matrix4f&, sf::Image&, material& material);
+    void DrawTriangle( Point&, Point&, Point&, Matrix4f&, sf::Image&, material& material, DepthBuffer& depthbuffer, Point& camepos);
     void viewport( Point2d&, Point2d&, Point2d& );
     void clear();
 

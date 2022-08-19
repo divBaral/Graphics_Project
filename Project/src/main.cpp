@@ -17,8 +17,7 @@
 #include "objParser.hpp"
 #include "mtlParser.hpp"
 #include "glalib.hpp"
-#include "Zbuffer.hpp"
-
+#include "DepthBuffer.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
 
@@ -47,6 +46,10 @@ int main()
         sf::Event event;
 
         static float f = 0;
+        static float tt = 0.0f;
+        static float yy = 0.f;
+        float xx = (tt + 40) * sin(f);
+        float zz = (tt + 40) * cos(f);
 
         while (window.pollEvent(event))
         {
@@ -56,14 +59,12 @@ int main()
             if (event.type == sf::Event::KeyPressed)
             {
 
-                static float tt = 0.0f;
-                float xx = (tt + 40) * sin(f);
-                float zz = (tt + 40) * cos(f);
+               
                 if (zz == 0)
                 {
                     zz = -4.f;
                 }
-                static float yy = 0.f;
+               
 
                 if (event.key.code == sf::Keyboard::Left)
                 {
@@ -108,6 +109,8 @@ int main()
 
         // frame begins
         // mapping points corresponding to the faces
+        DepthBuffer depthbuffer(window.getSize().x, window.getSize().y, INFINITY);
+        Point camepos(xx, yy, zz);
         for (std::string material : materials)
         {
             for (Triangle& t : materialTriangles[material])
@@ -116,19 +119,7 @@ int main()
                 Point p1 = t.v0;
                 Point p2 = t.v1;
                 Point p3 = t.v2;
-
-                // transformation to the view space i.e. camera space
-                // p1 = viewspace * p1;
-                // p2 = viewspace * p2;
-                // p3 = viewspace * p3;
-
-                // p1.homogenize();
-                // p2.homogenize();
-                // p3.homogenize();
-
-              
-
-                renderer.DrawTriangle(p1, p2, p3, viewspace, images[material], materialProperties[material]);
+                renderer.DrawTriangle(p1, p2, p3, viewspace, images[material], materialProperties[material], depthbuffer, camepos);
             }
         }
         window.display();

@@ -17,7 +17,19 @@ void Renderer::clear()
     // clearing z-buffer
     m_zBuffer->Clear();
 }
+Vector2d perspectiveProject(Vector P, int width, int height){
+	Vector2d Q(-P.x/P.z,-P.y/P.z);
+	const float aspect = float(height)/width;
 
+	float fieldOfViewX = PI/2;
+	const float s = -2.0*tan(fieldOfViewX*0.5f);
+
+	Q.x = width*(-Q.x/s + 0.5f);
+	Q.y = height*(Q.y/(s*aspect) + 0.5f);
+
+	return Q;
+
+}
 /****
  * for viewport tranform
  * i.e. tranformation from normal coordinates to the screen coordinates/pixels
@@ -82,17 +94,21 @@ float lineDistance2D(const Point2d& A,const Point2d& B, const Point2d& Q){
 float bary2D(const Point2d& A, const Point2d& B, const Point2d& C, const Point2d& Q){
 	return ((lineDistance2D(B,C,Q))/(lineDistance2D(B,C,A)));
 }
-void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4f &viewspace, sf::Image &image, material& material)
+void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4f &viewspace, sf::Image &image, material& material,DepthBuffer& depthbuffer, Point& camepos)
 {
     // converting to 2d coordinates for viewport transform
 	// viewspace = Matrix4f();
     auto q0 = viewspace * point0;
     auto q1 = viewspace * point1;
     auto q2 = viewspace * point2;
-    Point2d p0 = {q0.x, q0.y};
-    Point2d p1 = {q1.x, q1.y};
-    Point2d p2 = {q2.x, q2.y};
-	viewport(p0, p1, p2);
+
+	float width = m_window->getSize().x;
+	float height = m_window->getSize().y;
+    Point2d p0 = perspectiveProject(q0, width, height);
+    Point2d p1 = perspectiveProject(q1, width, height);
+    Point2d p2 = perspectiveProject(q2, width, height);
+
+	//viewport(p0, p1, p2);
     //compute bb
     auto x0 = std::min({p0.x, p1.x, p2.x});
     auto y0 = std::min({p0.y, p1.y, p2.y});
@@ -107,8 +123,8 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
 	if(x1>w){x1=w;}
 	if(y1>h){y1=h;}	
 
-	Vector vertexPw[3] = {q0, q1, q2};
-	float vertexW[3] = {-1/q0.z, -1/q0.z, -1/q0.z};
+	Vector vertexPw[3] = {-q0/q0.z, -q1/q1.z, -q2/q2.z};
+	float vertexW[3] = {-1/q0.z, -1/q1.z, -1/q2.z};
 	Vector n = {1,1,1};//normals to imported.
 	Vector vertexNw[3] = {n,n, n};
    
@@ -116,8 +132,8 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
         for ( int x = x0; x<x1; ++x) {
             Point2d Q(x+0.5f, y+0.5f);
             float alpha = bary2D(p0, p1, p2, Q);
-            float beta = bary2D(p2, p0, p1, Q);
-            float gamma = bary2D(p1, p2, p0, Q);
+            float beta = bary2D(p1, p0, p2, Q);
+            float gamma = bary2D(p2, p1, p0, Q);
             float weight2D[] = {alpha, beta, gamma};
 
 			//if points lies in triangle
@@ -132,17 +148,16 @@ void Renderer::DrawTriangle(Point &point0, Point &point1, Point &point2, Matrix4
 					//interpolate projective attributes
 					for(int k = 0;k<3;++k){
 						pW += vertexPw[k]*weight2D[k];
-						nW += vertexNw[k]*weight2D[k];
+						//nW += vertexNw[k]*weight2D[k];
 					}
 
 					//recover interpolated attributes
-					const Point& P = pW/w;
-					const Vector& n = nW/w;
-
-					const float depth = P.length();
+					 Point P = pW/w;
+					const float depth = -P.z*10;//P.length();
 
 					//depth test
-					if( m_zBuffer->testAndSet( x, y, depth)){
+					if(  depth<depthbuffer.get(x,y)){
+						depthbuffer.set(x,y, depth);
 						auto color = sf::Color::White;
 						if (image.getSize().x != 0 || image.getSize().y != 0)
                         	color = image.getPixel((x / m_window->getSize().x) * image.getSize().x, (y / m_window->getSize().y) * image.getSize().y);

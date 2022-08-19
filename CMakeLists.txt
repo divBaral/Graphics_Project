@@ -1,5 +1,5 @@
 project( myproject )
 cmake_minimum_required(VERSION 3.23)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -O3")
 add_subdirectory(Project)
 add_subdirectory(glalib)
