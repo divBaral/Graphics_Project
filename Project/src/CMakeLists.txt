@@ -3,7 +3,7 @@ include_directories(${myproject_SOURCE_DIR}/Project/include)
 include_directories(${myproject_SOURCE_DIR}/glalib/include)
 link_directories(${myproject_SOURCE_DIR}/glalib/src)
 include_directories(${SFML_INCLUDE_DIR})
-set(SOURCE_FILES main.cpp Camera.cpp Renderer.cpp)
+set(SOURCE_FILES main.cpp Camera.cpp)
 
 
 

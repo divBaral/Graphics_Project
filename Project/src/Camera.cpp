@@ -1,49 +1,85 @@
 #include "Camera.hpp"
+#include "MatrixTransformation.hpp"
+#include "Vector.hpp"
 
 Camera::Camera()
 {
+
+    Front = Vector(0.0f,0.0f,-1.f);
+    Position = {0,0,30};
+    WorldUp = {0,1,0};
+    Yaw = YAW;
+    Pitch = PITCH;
+    MovementSpeed = SPEED;
+    updateCameraVectors();
 }
 // pass world coordinates ranges i
+const Matrix4f Camera::GetViewMatrix()
+{
+   return update(Position,Position+Front );
+}
 const Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
 {
-    // calculate uvw of camera
-    fv = 120;        // field of view
-    vup = {0, 1, 0}; // vector up assume
-    f = 100.f;       // far plane
-    n = 10.f;        // near plane
-    look = (TargetPosition - CameraPosition).normalize();
-    auto w = look.scale(-1.0f);
-    auto v = vup - w * (vup.dot(w));
+  
+    auto look = (TargetPosition - CameraPosition).normalize();
+    auto w = look.scale(1.0f);
+    auto v = WorldUp - w * (WorldUp.dot(w));
     v = v.normalize();
     Vector u = (v.cross(w)).normalize();
-
-
-    // calcuate field of view in radian
-    fv = fv * PI / 180;
-    // Transformation Parameters
-    Matrix4f Translate(1, 0, 0, -CameraPosition.x, 
-                       0, 1, 0, -CameraPosition.y,
-                       0, 0, 1, -CameraPosition.z,
+    Matrix4f view( u.x , u.y, u.z, -CameraPosition.x, 
+                       v.x, v.y, v.z,-CameraPosition.y,
+                       w.x, w.y, w.z, -CameraPosition.z,
                        0, 0, 0, 1);
-    Matrix4f Rotate( u.x , u.y, u.z, 0, 
-                       v.x, v.y, v.z,0,
-                       w.x, w.y, w.z, 0,
-                       0, 0, 0, 1);
-//     Vector P = {CameraPosition.x, CameraPosition.y, CameraPosition.z};
-//     auto A = P - w.scale(f);
-//     auto B = A + u.scale(f * tan(fv / 2));
-//     auto C = A + v.scale(f);
-
-//     // generate persceptive matrix
-//     Matrix4f Tper = af::PointsToPoints(
-//         Point(P), Point(A), Point(B), Point(C),
-//         Point(0, 0, 0), Point(0, 0, -1), Point(1, 0, -1), Point(0, 1, -1));
-
-//     //opening the frustum
-//    Matrix4f Z(f - n, 0, 0, 0,
-//                0, f - n, 0, 0,
-//                0, 0, f, n,
-//                0, 0, n - f, 0); 
  
-    return Rotate*Translate;
+    return view;
+}
+
+
+void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+{
+    float velocity = MovementSpeed * deltaTime;
+    if(direction == FORWARD) {
+        Position += Front * velocity ;
+        
+    }
+    if(direction == BACKWARD)
+        Position -= Front * velocity;
+    if(direction == LEFT)
+        Position -= Right * velocity;
+    if(direction == RIGHT)
+        Position += Right * velocity ;
+    if(direction == CLEFT) {
+        Yaw -= deltaTime*EULERFACTOR;
+        updateCameraVectors();
+    }
+    if(direction == CRIGHT) {
+        
+        Yaw += deltaTime*EULERFACTOR;
+        updateCameraVectors();
+    }
+    if(direction == UP) {
+        Position.y += velocity;
+        //Pitch += deltaTime*EULERFACTOR;
+        //updateCameraVectors();
+    }
+    if(direction == DOWN) {
+        Position.y -= velocity;
+        //Pitch -= deltaTime*EULERFACTOR;
+        //updateCameraVectors();
+    }
+}
+inline float radians(float &x) {
+    return x*PI/180;
+}
+void Camera::updateCameraVectors()
+{
+    Vector front;
+    front.x = cos(radians(Yaw)) * cos(radians(Pitch));
+    front.y = sin(radians(Pitch));
+    front.z = sin(radians(Yaw)) * cos(radians(Pitch));
+
+    Front = (front).normalize();
+
+    Right = Front.cross(WorldUp).normalize();
+    Up =  Right.cross(Front).normalize();
 }
