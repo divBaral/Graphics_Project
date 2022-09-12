@@ -1,17 +1,13 @@
 # Graphics_Project
 
-1.<code> mkdir build  </code>
 
-2.<code> mkdir glalib </code>
 
-3.<code> cd glalib </code>
+1.<code> git clone https://github.com/divBaral/glalib </code>
 
-4.<code> git clone https://github.com/divBaral/glalib </code>
+2.<code> mkdir build </code>
 
-5.<code> cd .. </code>
+3.<code>  cd build </code>
 
-6.<code>  cd build </code>
+4.<code> cmake .. </code>
 
-7.<code> cmake .. </code>
-
-8.<code> ./Project/src/myproject </code>
+5.<code> ./Project/src/myproject </code>
