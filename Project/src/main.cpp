@@ -1,172 +1,272 @@
 #include <SFML/Config.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/Window.hpp>
 #include <cmath>
-#include <math.h>
-//headers
+// headers
 #include "Camera.hpp"
-#include "Renderer.hpp"
+#include "DepthBuffer.hpp"
+#include "Material.hpp"
+#include "Triangle.hpp"
+#include "Vector.hpp"
 #include "glalib.hpp"
+#include "Parser.hpp"
 
 
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
 
-int main()
+const std::string mtlfilepath = "/home/baral/Downloads/graphicslearn"
+                                "/Project/res/models/house.mtl";
+
+const std::string objfilepath = "/home/baral/Downloads/graphicslearn"
+                                "/Project/res/models/house.obj";
+
+namespace Utils 
 {
-    sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "SFML works!");
 
-    window.setFramerateLimit(30);
-    float verticesx[][3] = {
-        //front
-     {0.0f, 0.0f, 0.0f}, {50.0f, 50.0f, 0.0f},{50.0f, 0.0f, 0.0f},
-     {0.0f, 0.0f, 0.0f}, {0.0f, 50.0f, 0.0f},{50.0f, 50.0f, 0.0f},
-        //to clockwise faces
-     {50.0f, 0.0f, 0.0f}, {50.0f, 50.0f, -50.0f},{50.0f, 0.0f, -50.0f},
-     {50.0f, 0.0f, 0.0f}, {50.0f, 50.0f, 0.0f},{50.0f, 50.0f, -50.0f},
+Vector2d perspectiveProject(Vector P, int width, int height) 
+{
+  Vector2d Q(-P.x / P.z, -P.y / P.z);
+  const float aspect = float(height) / width;
 
-     {0.0f, 0.0f, -50.0f}, {50.0f, 50.0f, -50.0f},{50.0f, 0.0f, -50.0f},
-     {0.0f, 0.0f, -50.0f}, {0.0f, 50.0f, -50.0f},{50.0f, 50.0f, -50.0f},
+  float fieldOfViewX = 2 * PI / 3;
+  const float s = -2.0 * tan(fieldOfViewX * 0.5f);
 
-     {0.0f, 0.0f, 0.0f}, {0.0f, 50.0f, -50.0f},{0.0f, 0.0f, -50.0f},
-     {0.0f, 0.0f, 0.0f}, {0.0f, 50.0f, 0.0f},{0.0f, 50.0f, -50.0f},
+  Q.x = width * (-Q.x / s + 0.5f);
+  Q.y = height * (Q.y / (s * aspect) + 0.5f);
 
-  };
-    int notf = 2*4;
+  return Q;
+}
+sf::Color shade(std::vector<Vector> &lightArray, Vector camepos, Point P,
+                Vector normal, float ambientIntensity, Material m) {
+  float color[] = {0, 0, 0};
+  normal = normal.normalize();
+  Vector view = (camepos - P).normalize();
+  float diffuse = 0.0f;
+  float specular = 0.0f;
+  float intensity = 0.0f; //[]= {0.5, 0.4, 0.3}; //move this
+  for (int i = 0; i < 3; ++i) {
+    for (auto &light : lightArray) {
 
-    Camera cam;
-    Matrix4f Translate = af::Translate(Vector(25,25,-25),Vector(0,0,0));
-
-    Matrix4f viewport = cam.update( {0.0f,0,100.f}, {0.0f,0.0f,0.0f} );
-  
-    Matrix3f ToPixel = af2::PointsToPoints({-1,1}, {1,1}, {-1,-1},
-                                          {0,0}, {SCRWIDTH,0}, {0, SCRHEIGHT});
-   
-
-
-    Renderer renderer( &window );
-
-    //viewport = cam.update( {50,0,50}, {50,50,0} );
-    sf::Clock clock;
-    while (window.isOpen())
-    {
-        sf::Event event;
-
-        static float f = 0;
-        
-
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-            if ( event.type == sf::Event::KeyPressed ) {
-
-                
-                
-                static float tt = 0.0f;
-                 float xx = (tt+100)*sin(f);
-                 float zz = (tt+100)*cos(f);
-                 static float yy = 0.f;
-                
-                if (event.key.code == sf::Keyboard::Left)
-                {
-                    f+= 0.1;
-                    viewport = cam.update( {xx,yy,zz}, {0.0f,0.0f,0.0f} );
-                    
-                
-                }
-                else if (event.key.code == sf::Keyboard::Right)
-                {
-                    f-= 0.1;
-                    viewport = cam.update( {xx,yy,zz}, {0.0f,0.0f,0.0f} );
-                    
-                
-                }
-                else if (event.key.code == sf::Keyboard::Up)
-                {
-                    
-                    yy+= 1.f;
-                    viewport = cam.update( {xx,yy,zz}, {0.0f,0.0f,0.0f} );
-                    
-                
-                }
-                else if (event.key.code == sf::Keyboard::Down)
-                {
-                    
-                    yy-= 1.f;
-                    viewport = cam.update( {xx,yy,zz}, {0.0f,0.0f,0.0f} );
-                    
-                
-                }
-                else if (event.key.code == sf::Keyboard::W)
-                {
-                    
-                    tt-=1.f;
-                    viewport = cam.update( {xx,yy,zz}, {0.0f,0.0f,0.0f} );
-                    
-                
-                }
-                else if (event.key.code == sf::Keyboard::S)
-                {
-                    
-                    tt+= 1.f;
-                    viewport = cam.update( {xx,yy,zz}, {0.0f,0.0f,0.0f} );
-                    
-                
-                }
-
-            }
-               
-        }
-
-        
-        
-        window.clear();
-        
-   
-   
-    //viewport=cam.update( {xx,25.0f+f,zz}, {50.0f,25.0f,0.0f} );
-  
-        int i=0;
-        for (int j=0; j<notf; ++j) {
-            Point p1 = {verticesx[i][0], verticesx[i][1], verticesx[i][2]};
-            Point p2 = {verticesx[i+1][0], verticesx[i+1][1], verticesx[i+1][2]};
-            Point p3 = {verticesx[i+2][0], verticesx[i+2][1], verticesx[i+2][2]};
-            i+=3;
-           
-
-            p1 = viewport*Translate*p1;
-            p2 = viewport*Translate*p2;
-            p3 = viewport*Translate*p3;
-
-            p1.homogenize();
-            p2.homogenize();
-            p3.homogenize();
-
-            Point2d q1 = {p1.x, p1.y};
-            Point2d q2 = {p2.x, p2.y};
-            Point2d q3 = {p3.x, p3.y};
-
-            q1 = ToPixel*q1;
-            q2 = ToPixel*q2;
-            q3 = ToPixel*q3;
-           
-
-
-            renderer.DrawTriangle( q1.x, q1.y,
-                             q2.x, q2.y ,
-                             q3.x, q3.y);
-        }
-
-
-        // renderer.DrawTriangle( 0.0f,0.0f, 100.f,100.f, 120.f,1.0f);
-    
-        window.display();
+      light = light - P;
+      
+      float intensity = 1000.f/(1+light.length());
+      light = light.normalize();
+      Vector reflection = normal * (2 * light.dot(normal)) - light;
+      float diff = intensity * std::max(normal.dot(light), 0.f);
+      float spec =
+          diffuse > 0
+              ? intensity * pow(std::max(reflection.dot(view), 0.0f), m.ns)
+              : 0;
+      specular += spec;
+      diffuse += diff;
     }
+    color[i] = ambientIntensity * m.ka[i] +
+               diffuse  * m.kd[i] + specular * m.ks[i];
+    
+  }
+  float maxi = std::max({color[0], color[1], color[2]});
+  if ( maxi<255) return sf::Color(color[0], color[1], color[2]);
 
-    return 0;
+  float factor = 255/maxi;
+  
+  for ( int i =0; i<3; ++i ) {
+    color[i] *= factor;
+  }
+
+ 
+
+  // return sf::Color::White;
+  return sf::Color(color[0], color[1], color[2]);
+}
+// distance of point Q from line containing points A & B
+float lineDistance2D(const Point2d &A, const Point2d &B, const Point2d &Q) {
+
+  Vector2d n(A.y - B.y, B.x - A.x);
+  const float d = A.x * B.y - B.x * A.y;
+  return (n.dot(Q) + d) / n.length();
+}
+
+float bary2D(const Point2d &A, const Point2d &B, const Point2d &C,
+             const Point2d &Q) {
+  return ((lineDistance2D(B, C, Q)) / (lineDistance2D(B, C, A)));
+}
+
+} // namespace utils
+
+
+int main() 
+{
+        sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "SFML works!");
+        window.setFramerateLimit(30);
+
+        // load scene/mesh in vector
+        std::vector<Triangle> scene;
+        LoadObject(
+            scene, "/home/baral/Downloads/graphicslearn/Project/res/models/house.mtl",
+            "/home/baral/Downloads/graphicslearn/Project/res/models/house.obj");
+
+        // initiaze camera properties
+        Camera camera;
+        Matrix4f viewspace = camera.GetViewMatrix();
+         //point light sources
+        std::vector<Vector> lightArray ={Vector(0,0,-10)};
+
+        // transform vertex attributes ready for drawn
+        std::vector<sf::Vertex> drawablescene;
+        bool eventoccured = true;
+
+        while (window.isOpen()) 
+        {
+          sf::Event event;
+          static float deltaTime = 0.1;
+
+         
+
+          while (window.pollEvent(event)) 
+          {
+            if (event.type == sf::Event::Closed)
+              window.close();
+
+            if (event.type == sf::Event::KeyPressed) {
+              eventoccured = true;
+
+              if (event.key.code == sf::Keyboard::Left) {
+              
+                  camera.ProcessKeyboard(CLEFT,  deltaTime);
+                  viewspace = camera.GetViewMatrix();
+
+              } else if (event.key.code == sf::Keyboard::Right) {
+              
+                  camera.ProcessKeyboard(CRIGHT,  deltaTime);
+                  viewspace = camera.GetViewMatrix();
+
+              } else if (event.key.code == sf::Keyboard::W) {
+
+              
+                  camera.ProcessKeyboard(FORWARD,  deltaTime);
+                  viewspace = camera.GetViewMatrix();
+
+              } else if (event.key.code == sf::Keyboard::S) {
+
+              
+                  camera.ProcessKeyboard(BACKWARD,  deltaTime);
+                  viewspace = camera.GetViewMatrix();
+
+              }else if (event.key.code == sf::Keyboard::A) {
+                  camera.ProcessKeyboard(LEFT,  deltaTime);
+                  viewspace = camera.GetViewMatrix();
+
+              }else if (event.key.code == sf::Keyboard::D) {
+
+              
+                  camera.ProcessKeyboard(RIGHT,  deltaTime);
+                  viewspace = camera.GetViewMatrix();
+
+              }
+            }
+          }
+
+          window.clear();
+
+          DepthBuffer depthbuffer(window.getSize().x, window.getSize().y, INFINITY);
+          Point camepos = camera.getPosition();
+
+          // draw each triangle and add to drawablescene
+          if ( eventoccured ) //update rendering only if there is change in mvp matrix
+          {
+            drawablescene.resize(0);
+            for (const auto &t : scene) {
+              auto q0 = viewspace * t.v0;
+              auto q1 = viewspace * t.v1;
+              auto q2 = viewspace * t.v2;
+
+
+              //cliping shoudl be done;
+              float zNear = -1.f;
+              if ( q0.z > zNear || q1.z > zNear || q2.z>zNear ) continue;
+
+              float width = window.getSize().x;
+              float height = window.getSize().y;
+
+              // converting to 2d coordinates for viewport transform
+              Point2d p0 = Utils::perspectiveProject(q0, width, height);
+              Point2d p1 = Utils::perspectiveProject(q1, width, height);
+              Point2d p2 = Utils::perspectiveProject(q2, width, height);
+
+              Vector vertexPw[3] = {-q0 / q0.z, -q1 / q1.z, -q2 / q2.z};
+              float vertexW[3] = {-1 / q0.z, -1 / q1.z, -1 / q2.z};
+
+              // compute bounding box
+              auto x0 = std::min({p0.x, p1.x, p2.x});
+              auto y0 = std::min({p0.y, p1.y, p2.y});
+              auto x1 = std::max({p0.x, p1.x, p2.x});
+              auto y1 = std::max({p0.y, p1.y, p2.y});
+
+              // cliping should be done
+
+              // if (x0 < 0 || x1 > width || y0 < 0 || y1 > height) {
+              //   continue;
+              // }
+              if(x0<0){x0=0;} 
+              if(y0<0){y0=0;} 
+              if(x1>SCRWIDTH){x1=SCRWIDTH;} 
+              if(y1>SCRHEIGHT){y1=SCRHEIGHT;}	
+
+              Vector normal = -(t.v1 - t.v0).cross(t.v2 - t.v0);
+
+              for (int y = y0; y < y1; ++y) {
+                for (int x = x0; x < x1; ++x) {
+
+                  Point2d Q(x + 0.5f, y + 0.5f);
+
+                  float weight2D[3];
+                  weight2D[0] = Utils::bary2D(p0, p1, p2, Q);
+                  weight2D[1] = Utils::bary2D(p1, p0, p2, Q);
+                  weight2D[2] = Utils::bary2D(p2, p1, p0, Q);
+                 
+
+                  // if points lies in triangle
+                  if (weight2D[0] > 0 && weight2D[1] > 0 && weight2D[2] > 0) {
+                    // interpolate depth
+                    float w = 0.0f;
+                    for (int k = 0; k < 3; ++k) {
+                      w += weight2D[k] * vertexW[k];
+                    }
+                    Point pW = Point();
+                    // interpolate projective attributes
+                    for (int k = 0; k < 3; ++k) {
+                      pW += vertexPw[k] * weight2D[k];
+                    }
+
+                    // recover interpolated attributes
+                    Point P = pW / w;
+
+                    const float depth = -P.z * 10; // P.length();
+
+                    // depth test
+                    if (depth < depthbuffer.get(x, y)) {
+                      depthbuffer.set(x, y, depth);
+                      Point vertexCoordinates = P;
+                     
+                      if (t.hasnormal)
+                        normal = t.n0 * weight2D[0] + t.n1 * weight2D[1] + t.n2 * weight2D[2];
+                    
+                      auto color = Utils::shade(lightArray, camepos, P, normal, .4f, t.mtl);
+                      sf::Vertex v(sf::Vector2f(x, y), color);
+                      drawablescene.push_back(v);
+                    }
+                  }
+                }
+              }
+            }
+            eventoccured = false;
+          }
+
+          window.draw(&drawablescene[0], drawablescene.size(), sf::Points);
+
+          window.display();
+        
+        }
+
+        return 0;
 }

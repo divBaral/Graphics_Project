@@ -1,0 +1,103 @@
+#include <unordered_map>
+#include <sstream>
+#include <fstream>
+#include <algorithm>
+#include "Triangle.hpp"
+#include "Material.hpp"
+#include "glalib.hpp"
+
+void LoadObject(std::vector<Triangle>& mesh, std::string mtl_file_path, std::string obj_file_path) {
+	std::ifstream mtl_file(mtl_file_path);
+	std::ifstream obj_file(obj_file_path);
+
+	std::map<std::string, Material> mtlmap;
+
+	std::string line;
+	while (std::getline(mtl_file, line)) {
+		std::istringstream iss(line);
+		std::string first_token;
+		iss >> first_token;
+		if (first_token == "#")continue;
+		if (first_token == "newmtl") {
+			std::string Material_name;
+			iss >> Material_name;
+			Material m;
+			while(true) {
+				getline(mtl_file, line);
+				std::istringstream pss(line);
+				pss.str(line);
+				std::string properties;
+				pss >> properties;
+				if (properties == "Ns") {
+					pss >> m.ns;
+				}
+				else if (properties == "Ka") {
+					pss >> m.ka[0] >> m.ka[1] >> m.ka[2];
+				}
+				else if (properties == "Ks") {
+					pss >> m.ks[0] >> m.ks[1] >> m.ks[2];
+				}
+				else if (properties == "Kd") {
+					pss >> m.kd[0] >> m.kd[1] >> m.kd[2];
+				}
+				else if (properties == "illum" || properties == "Ke" || properties == "Ni" || properties == "d");
+				else break;
+			}
+			mtlmap[Material_name] = m;
+		}
+	}
+
+
+	std::vector<Point> vertices;
+	std::vector<Vector> normals;
+	Material current_Material ;
+	while (std::getline(obj_file, line)) {
+		std::istringstream iss(line);
+		std::string first_token;
+		iss >> first_token;
+		if (first_token == "v") {
+			float x, y, z;
+			iss >> x >> y >> z;
+			vertices.push_back(Point{ x, y, z,});
+		}
+		else if (first_token == "vn") {
+			float x, y, z;
+			iss >> x >> y >> z;
+			normals.push_back(Vector{ x, y, z});
+		}
+		else if (first_token == "usemtl") {
+			std::string Material_name;
+			iss >> Material_name;
+			current_Material = mtlmap[Material_name];
+		}
+		else if(first_token == "f") {
+			std::string v1, v2, v3;
+			iss >> v1 >> v2 >> v3;
+			std::string x1 = v1.substr(0, v1.find("/"));
+			std::string x2 = v2.substr(0, v2.find("/"));
+			std::string x3 = v3.substr(0, v3.find("/"));
+			Triangle t(vertices[stoi(x1)-1], vertices[stoi(x2)-1], vertices[stoi(x3)-1]);
+
+			if (std::count(v1.begin(), v1.end(), '/') == 2) {
+				int first_pos = v1.find("/");
+				int second_pos = v1.find("/", first_pos + 1);
+
+				std::string n0 = v1.substr(second_pos + 1, v1.size() - second_pos - 1);
+
+				first_pos = v2.find("/");
+				second_pos = v2.find("/", first_pos + 1);
+				std::string n1 = v2.substr(second_pos + 1, v2.size() - second_pos - 1);
+
+				first_pos = v3.find("/");
+				second_pos = v3.find("/", first_pos + 1);
+				std::string n2 = v3.substr(second_pos + 1, v3.size() - second_pos - 1);
+				t.n0 = normals[stoi(n0) - 1];
+				t.n1 = normals[stoi(n1) - 1];
+				t.n2 = normals[stoi(n2) - 1];
+				t.hasnormal = true;
+			}
+			t.mtl = current_Material;
+			mesh.push_back(t);
+		}
+	}
+}

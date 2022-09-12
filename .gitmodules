@@ -1,0 +1,3 @@
+[submodule "glalib"]
+	path = glalib
+	url = https://github.com/divBaral/glalib
