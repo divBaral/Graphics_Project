@@ -20,28 +20,30 @@ const Matrix4f Camera::GetViewMatrix()
 }
 const Matrix4f Camera::update(Point CameraPosition, Point TargetPosition)
 {
-  
-    auto look = (TargetPosition - CameraPosition).normalize();
-    auto w = look.scale(1.0f);
-    auto v = WorldUp - w * (WorldUp.dot(w));
-    v = v.normalize();
-    Vector u = (v.cross(w)).normalize();
-    Matrix4f view( u.x , u.y, u.z, -CameraPosition.x, 
-                       v.x, v.y, v.z,-CameraPosition.y,
-                       w.x, w.y, w.z, -CameraPosition.z,
+
+    auto w = -(TargetPosition - CameraPosition).normalize();
+    auto v = (WorldUp - w * (WorldUp.dot(w))).normalize();
+    auto u = (v.cross(w)).normalize();
+
+    Matrix4f translate( 1, 0, 0, -CameraPosition.x,
+                    0, 1 ,0, -CameraPosition.y,
+                    0,0,1, -CameraPosition.z,
+                    0,0,0,1);
+
+    Matrix4f rotate( u.x , u.y, u.z, 0, 
+                       v.x, v.y, v.z,0,
+                       w.x, w.y, w.z, 0,
                        0, 0, 0, 1);
  
-    return view;
+    return rotate*translate;
 }
 
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
-    if(direction == FORWARD) {
+    if(direction == FORWARD) 
         Position += Front * velocity ;
-        
-    }
     if(direction == BACKWARD)
         Position -= Front * velocity;
     if(direction == LEFT)
@@ -53,22 +55,20 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         updateCameraVectors();
     }
     if(direction == CRIGHT) {
-        
         Yaw += deltaTime*EULERFACTOR;
         updateCameraVectors();
     }
     if(direction == UP) {
         Position.y += velocity;
-        //Pitch += deltaTime*EULERFACTOR;
-        //updateCameraVectors();
+      
     }
     if(direction == DOWN) {
-        Position.y -= velocity;
-        //Pitch -= deltaTime*EULERFACTOR;
-        //updateCameraVectors();
+        if ( Position.y > 0 )
+             Position.y -= velocity;
+       
     }
 }
-inline float radians(float &x) {
+inline const float radians(float &x)  {
     return x*PI/180;
 }
 void Camera::updateCameraVectors()

@@ -3,14 +3,14 @@
 #include <fstream>
 #include <algorithm>
 #include "Triangle.hpp"
-#include "material.hpp"
+#include "Material.hpp"
 #include "glalib.hpp"
 
 void LoadObject(std::vector<Triangle>& mesh, std::string mtl_file_path, std::string obj_file_path) {
 	std::ifstream mtl_file(mtl_file_path);
 	std::ifstream obj_file(obj_file_path);
 
-	std::map<std::string, material> mtlmap;
+	std::map<std::string, Material> mtlmap;
 
 	std::string line;
 	while (std::getline(mtl_file, line)) {
@@ -19,9 +19,9 @@ void LoadObject(std::vector<Triangle>& mesh, std::string mtl_file_path, std::str
 		iss >> first_token;
 		if (first_token == "#")continue;
 		if (first_token == "newmtl") {
-			std::string material_name;
-			iss >> material_name;
-			material m;
+			std::string Material_name;
+			iss >> Material_name;
+			Material m;
 			while(true) {
 				getline(mtl_file, line);
 				std::istringstream pss(line);
@@ -43,14 +43,14 @@ void LoadObject(std::vector<Triangle>& mesh, std::string mtl_file_path, std::str
 				else if (properties == "illum" || properties == "Ke" || properties == "Ni" || properties == "d");
 				else break;
 			}
-			mtlmap[material_name] = m;
+			mtlmap[Material_name] = m;
 		}
 	}
 
 
 	std::vector<Point> vertices;
 	std::vector<Vector> normals;
-	material current_material ;
+	Material current_Material ;
 	while (std::getline(obj_file, line)) {
 		std::istringstream iss(line);
 		std::string first_token;
@@ -66,9 +66,9 @@ void LoadObject(std::vector<Triangle>& mesh, std::string mtl_file_path, std::str
 			normals.push_back(Vector{ x, y, z});
 		}
 		else if (first_token == "usemtl") {
-			std::string material_name;
-			iss >> material_name;
-			current_material = mtlmap[material_name];
+			std::string Material_name;
+			iss >> Material_name;
+			current_Material = mtlmap[Material_name];
 		}
 		else if(first_token == "f") {
 			std::string v1, v2, v3;
@@ -96,7 +96,7 @@ void LoadObject(std::vector<Triangle>& mesh, std::string mtl_file_path, std::str
 				t.n2 = normals[stoi(n2) - 1];
 				t.hasnormal = true;
 			}
-			t.mtl = current_material;
+			t.mtl = current_Material;
 			mesh.push_back(t);
 		}
 	}
