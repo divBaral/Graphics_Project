@@ -203,10 +203,6 @@ int main()
               auto y1 = std::max({p0.y, p1.y, p2.y});
 
               // cliping should be done
-
-              // if (x0 < 0 || x1 > width || y0 < 0 || y1 > height) {
-              //   continue;
-              // }
               if(x0<0){x0=0;} 
               if(y0<0){y0=0;} 
               if(x1>SCRWIDTH){x1=SCRWIDTH;} 
