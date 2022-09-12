@@ -6,7 +6,12 @@ just using putpixel ( called points in sfml ) routine.
 # Dependencies
 
 A simple math library 
+
 - [ glalib ](https://github.com/divBaral/glalib)
+
+Graphics library for putpixel
+
+- [SFML](https://www.sfml-dev.org/download.php)
 
 Do recursive clone
 
